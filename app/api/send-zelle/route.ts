@@ -3,11 +3,8 @@ import { generateZelleEmailHtml, generateUpgradeWarningEmail } from "@/lib/email
 
 export async function POST(request: Request) {
   try {
-    console.log("[v0] Received request to send Zelle payment")
     const body = await request.json()
     const { recipientEmail, recipientName, amount, message, langMode, emailTemplate } = body
-
-    console.log("[v0] Request data:", { recipientEmail, recipientName, emailTemplate })
 
     if (!recipientEmail || !recipientName) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -60,14 +57,11 @@ export async function POST(request: Request) {
     // Check for SendGrid API key
     const sendGridApiKey = process.env.SENDGRID_API_KEY
     if (!sendGridApiKey) {
-      console.error("[v0] SENDGRID_API_KEY is not set")
       return NextResponse.json(
         { error: "Email service not configured. Please add SENDGRID_API_KEY to environment variables." },
         { status: 500 },
       )
     }
-
-    console.log("[v0] Sending email via SendGrid...")
 
     // Send email via SendGrid
     const sendGridResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
@@ -103,18 +97,14 @@ export async function POST(request: Request) {
 
     if (!sendGridResponse.ok) {
       const errorText = await sendGridResponse.text()
-      console.error("[v0] SendGrid error:", errorText)
       return NextResponse.json({ error: `Failed to send email: ${errorText}` }, { status: 500 })
     }
-
-    console.log("[v0] Email sent successfully via SendGrid")
 
     return NextResponse.json({
       success: true,
       message: "Email sent successfully",
     })
   } catch (error) {
-    console.error("[v0] Error in send-zelle API:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

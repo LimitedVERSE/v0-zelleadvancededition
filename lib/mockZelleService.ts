@@ -20,8 +20,6 @@ export function buildZelleMock(bankId?: string, bankName?: string, categoryId?: 
   const finalBankName = bankName || getEnv("MOCK_SENDER_NAME", "Chase Bank")
   const bankLogo = bankId ? getBankLogoPath(bankId) : getEnv("MOCK_BANK_LOGO_URL", "/assets/banks/chase.svg")
 
-  console.log("[v0] Building mock data for bank:", finalBankName, "Logo:", bankLogo)
-
   return {
     meta: {
       id: getEnv("MOCK_TRANSACTION_ID", "txn_mock_001"),
