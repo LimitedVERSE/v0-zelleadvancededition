@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { Resend } from "resend"
 import { generateZelleEmailHtml, generateUpgradeWarningEmail } from "@/lib/email-template"
 
 export async function POST(request: Request) {
@@ -20,7 +21,6 @@ export async function POST(request: Request) {
     let emailSubject: string
 
     if (emailTemplate === "upgrade-warning") {
-      // Generate upgrade warning email
       emailHtml = generateUpgradeWarningEmail({
         recipientName,
         institution: "QuantumYield Holdings",
@@ -29,7 +29,6 @@ export async function POST(request: Request) {
       })
       emailSubject = "Important: Gateway Upgrade Required - Action Needed"
     } else {
-      // Generate payment notification email
       if (!amount) {
         return NextResponse.json({ error: "Amount is required for payment emails" }, { status: 400 })
       }
@@ -54,56 +53,27 @@ export async function POST(request: Request) {
       emailSubject = `You've received a Zelle payment for $${amountNum.toFixed(2)}`
     }
 
-    // Check for SendGrid API key
-    const sendGridApiKey = process.env.SENDGRID_API_KEY
-    if (!sendGridApiKey) {
+    if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
-        { error: "Email service not configured. Please add SENDGRID_API_KEY to environment variables." },
+        { error: "Email service not configured. Please add RESEND_API_KEY to environment variables." },
         { status: 500 },
       )
     }
 
-    // Send email via SendGrid
-    const sendGridResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${sendGridApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: [
-              {
-                email: recipientEmail,
-                name: recipientName,
-              },
-            ],
-            subject: emailSubject,
-          },
-        ],
-        from: {
-          email: process.env.SENDGRID_FROM_EMAIL || "gateway@quantumyield.exchange",
-          name: "Zelle",
-        },
-        content: [
-          {
-            type: "text/html",
-            value: emailHtml,
-          },
-        ],
-      }),
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
+    const { error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "Zelle <gateway@quantumyield.exchange>",
+      to: recipientEmail,
+      subject: emailSubject,
+      html: emailHtml,
     })
 
-    if (!sendGridResponse.ok) {
-      const errorText = await sendGridResponse.text()
-      return NextResponse.json({ error: `Failed to send email: ${errorText}` }, { status: 500 })
+    if (error) {
+      return NextResponse.json({ error: `Failed to send email: ${error.message}` }, { status: 500 })
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Email sent successfully",
-    })
+    return NextResponse.json({ success: true, message: "Email sent successfully" })
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
