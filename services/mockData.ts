@@ -17,7 +17,7 @@ export const mockBanks: Bank[] = [
     id: "wells-fargo",
     name: "Wells Fargo",
     logo: "/wells-fargo-logo.jpg",
-    loginUrl: "https://www.wellsfargo.com/",
+    loginUrl: "https://connect.secure.wellsfargo.com/auth/login/present?passkey=X",
   },
   {
     id: "citibank",
