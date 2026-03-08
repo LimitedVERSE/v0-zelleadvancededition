@@ -207,6 +207,205 @@ ${messageBlock}
 </html>`
 }
 
+export function generatePendingDepositEmailHtml(data: EmailData): string {
+  const {
+    recipientName,
+    amount,
+    message,
+    transferId,
+    depositLink,
+    senderName = "Your Institution",
+  } = data
+
+  const formattedAmount = `$${amount.toFixed(2)}`
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+
+  const messageBlock = message
+    ? `
+<tr>
+<td style="padding:24px 64px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e2e2;border-left:4px solid #6D1ED4">
+    <tr>
+      <td style="padding:16px">
+        <div style="font-size:13px;color:#666;margin-bottom:6px">Message from sender</div>
+        <div style="font-size:15px;color:#111">${message}</div>
+      </td>
+    </tr>
+  </table>
+</td>
+</tr>`
+    : ""
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pending Deposit Notification</title>
+<style>
+body{margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif}
+table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}
+img{border:0;display:block}
+a{text-decoration:none}
+@media only screen and (max-width:600px){
+  .container{width:100% !important}
+  .padding{padding:24px !important}
+}
+</style>
+</head>
+<body>
+
+<table width="100%" bgcolor="#f5f5f5" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
+
+<table class="container" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
+
+<!-- HEADER -->
+<tr bgcolor="#6D1ED4">
+<td style="padding:16px 32px;border-bottom:4px solid #6D1ED4">
+  <table width="100%">
+  <tr>
+    <td align="left">
+      <img src="${ZELLE_LOGO_URL}" width="120" alt="Zelle">
+    </td>
+    <td align="right" style="font-size:13px">
+      <a href="#" style="color:#fff">View in browser</a>
+      <span style="color:#fff"> | </span>
+      <a href="#" style="color:#fff">Support</a>
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+<!-- HERO -->
+<tr>
+<td bgcolor="#f9f9f9" class="padding" style="padding:40px 64px">
+  <h2 style="margin:0;font-size:24px;color:#111">You have a pending deposit</h2>
+  <p style="margin:12px 0 0 0;font-size:16px;color:#444">Hello <strong>${recipientName}</strong>,</p>
+  <p style="margin:8px 0 0 0;font-size:16px;color:#444">${senderName} has initiated a Zelle deposit to your account. Please accept it to complete the transfer.</p>
+</td>
+</tr>
+
+<!-- AMOUNT -->
+<tr>
+<td align="center" style="padding:24px">
+  <table width="80%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" bgcolor="#6D1ED4" style="padding:20px;color:#ffffff">
+      <div style="font-size:14px;opacity:.9">Pending Deposit Amount</div>
+      <div style="font-size:28px;font-weight:bold">${formattedAmount}</div>
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+${messageBlock}
+
+<!-- DETAILS -->
+<tr>
+<td style="padding:24px 64px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e2e2">
+    <tr>
+      <td style="padding:12px;font-size:13px;color:#666">Date</td>
+      <td style="padding:12px;font-size:15px;color:#111">${currentDate}</td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Reference</td>
+      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${transferId}</td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">From</td>
+      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${senderName}</td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Amount</td>
+      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${formattedAmount}</td>
+    </tr>
+    <tr>
+      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Status</td>
+      <td style="padding:12px;font-size:15px;border-top:1px solid #f0f0f0">
+        <span style="display:inline-block;padding:2px 10px;background:#fff8e1;color:#b45309;border:1px solid #fcd34d;border-radius:4px;font-size:13px;font-weight:bold">Pending</span>
+      </td>
+    </tr>
+  </table>
+</td>
+</tr>
+
+<!-- BUTTON -->
+<tr>
+<td align="center" style="padding:32px">
+  <table cellpadding="0" cellspacing="0">
+  <tr>
+    <td bgcolor="#6D1ED4" style="border-radius:6px">
+      <a href="${depositLink}" style="display:inline-block;padding:16px 32px;color:#ffffff;font-size:16px;font-weight:bold">
+        Accept Deposit
+      </a>
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+<!-- HOW IT WORKS -->
+<tr>
+<td style="padding:24px 64px">
+  <h3 style="margin:0 0 12px 0;font-size:16px;color:#111">How to accept your deposit</h3>
+  <ol style="margin:0;padding-left:20px;color:#444;font-size:14px;line-height:1.7">
+    <li>Click the Accept Deposit button above</li>
+    <li>Select your bank account</li>
+    <li>Confirm the deposit</li>
+    <li>The funds will appear in your account within minutes</li>
+  </ol>
+</td>
+</tr>
+
+<!-- SECURITY -->
+<tr>
+<td style="padding:24px 64px">
+  <div style="font-size:12px;color:#666;line-height:1.6">
+    <strong>Security Notice</strong><br>
+    For your protection, do not forward this email.
+    This message contains confidential financial information intended only for the recipient.
+  </div>
+</td>
+</tr>
+
+<!-- FOOTER -->
+<tr>
+<td style="padding:32px;border-top:1px solid #e5e5e5">
+  <table width="100%">
+  <tr>
+    <td align="left">
+      <img src="${ZELLE_FOOTER_LOGO_URL}" width="110" alt="Zelle">
+    </td>
+    <td align="right" style="font-size:12px;color:#666">
+      &copy; 2026 Early Warning Services, LLC<br>All rights reserved
+    </td>
+  </tr>
+  </table>
+  <div style="margin-top:16px;font-size:12px;color:#666;line-height:1.6">
+    Zelle&reg; and the Zelle related marks are wholly owned by Early Warning Services, LLC.
+  </div>
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>`
+}
+
 export type EmailLang = "en" | "fr"
 export type EmailLangMode = EmailLang | "dual"
 
