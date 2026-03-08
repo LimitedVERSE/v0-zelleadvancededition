@@ -17,6 +17,10 @@ import {
   BarChart3,
   Mail,
   MoreVertical,
+  RefreshCcw,
+  Landmark,
+  Timer,
+  Layers,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -60,6 +64,15 @@ const sections = [
         iconBg: "bg-orange-950",
         href: "/history",
       },
+      {
+        id: "remittance",
+        title: "Remittance",
+        subtitle: "Class · Filter · Route",
+        icon: RefreshCcw,
+        iconColor: "text-yellow-400",
+        iconBg: "bg-yellow-950",
+        href: "/remittance",
+      },
     ],
   },
   {
@@ -101,6 +114,15 @@ const sections = [
         iconBg: "bg-red-950",
         href: "/security",
       },
+      {
+        id: "bank-accounts",
+        title: "Bank Accounts",
+        subtitle: "Linked · Verified · Managed",
+        icon: Landmark,
+        iconColor: "text-emerald-400",
+        iconBg: "bg-emerald-950",
+        href: "/",
+      },
     ],
   },
   {
@@ -132,6 +154,24 @@ const sections = [
         iconColor: "text-slate-400",
         iconBg: "bg-slate-800",
         href: "/admin",
+      },
+      {
+        id: "countdown",
+        title: "Countdown",
+        subtitle: "Timer · Schedule · Redirect",
+        icon: Timer,
+        iconColor: "text-amber-400",
+        iconBg: "bg-amber-950",
+        href: "/countdown",
+      },
+      {
+        id: "remittance-catalog",
+        title: "Remittance Catalog",
+        subtitle: "Classes · Rules · Tags",
+        icon: Layers,
+        iconColor: "text-violet-400",
+        iconBg: "bg-violet-950",
+        href: "/remittance",
       },
     ],
   },
