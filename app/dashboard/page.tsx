@@ -21,6 +21,7 @@ import {
   Mail,
 } from "lucide-react"
 import { useState } from "react"
+import Image from "next/image"
 
 const menuItems = [
   {
@@ -142,11 +143,18 @@ function DashboardContent() {
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Logo and Title */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#6D1ED4] rounded-lg flex items-center justify-center p-1.5 sm:p-2 flex-shrink-0">
-                <span className="text-2xl sm:text-3xl font-bold text-white">Z</span>
+              <div className="bg-[#6D1ED4] rounded-lg flex items-center justify-center px-3 py-2 flex-shrink-0">
+                <Image
+                  src="/zelle-logo.svg"
+                  alt="Zelle"
+                  width={72}
+                  height={28}
+                  className="h-7 w-auto"
+                  priority
+                />
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-2xl font-bold text-white truncate">Zelle Network</h1>
+                <h1 className="text-lg sm:text-2xl font-bold text-white truncate">Network</h1>
                 <p className="text-xs sm:text-sm text-zinc-400 hidden sm:block">Dashboard Lobby</p>
               </div>
             </div>
