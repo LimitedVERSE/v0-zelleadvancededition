@@ -14,8 +14,8 @@ export default function EmailPreviewPage() {
   const [emailTemplate, setEmailTemplate] = useState<EmailTemplate>("payment")
   const [formData, setFormData] = useState({
     recipientEmail: "",
-    recipientName: "Jean-Francois Melancon",
-    amount: "555.55",
+    recipientName: "John Doe",
+    amount: "100.00",
     message: "ENTER-VAULT-SECURE-CYPHER-PASS",
   })
   const [sending, setSending] = useState(false)
@@ -25,20 +25,20 @@ export default function EmailPreviewPage() {
   const html =
     emailTemplate === "payment"
       ? generateZelleEmailHtml({
-          recipientName: formData.recipientName,
-          amount: Number.parseFloat(formData.amount) || 0,
-          message: formData.message || undefined,
-          transferId: "ZEL-733346-AWLX84P",
-          depositLink: "https://www.zellepay.com/",
-          senderName: "QuantumYield",
-          institution: "QuantumYield Holdings | Treasury Reserve & Vaulted-Portal",
-        })
+        recipientName: formData.recipientName,
+        amount: Number.parseFloat(formData.amount) || 0,
+        message: formData.message || undefined,
+        transferId: "ZEL-733346-AWLX84P",
+        depositLink: "https://www.zellepay.com/",
+        senderName: "QuantumYield",
+        institution: "QuantumYield Holdings | Treasury Reserve & Vaulted-Portal",
+      })
       : generateUpgradeWarningEmail({
-          recipientName: formData.recipientName,
-          institution: "QuantumYield Holdings",
-          upgradeDeadline: "within 12 hours", // Updated deadline from 30 days to 12 hours for urgent upgrade
-          supportLink: "https://support.zellepay.com",
-        })
+        recipientName: formData.recipientName,
+        institution: "QuantumYield Holdings",
+        upgradeDeadline: "within 12 hours", // Updated deadline from 30 days to 12 hours for urgent upgrade
+        supportLink: "https://support.zellepay.com",
+      })
 
   const handleSendEmail = async () => {
     setError("")

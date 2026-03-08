@@ -33,8 +33,6 @@ export default function SendTransferPage() {
     setError("")
     setSuccess("")
 
-    console.log("[v0] Form submitted:", formData.recipient)
-
     try {
       const response = await fetch("/api/send-zelle", {
         method: "POST",
@@ -55,7 +53,6 @@ export default function SendTransferPage() {
         throw new Error(data.error || "Failed to send payment")
       }
 
-      console.log("[v0] Payment sent successfully:", data.transferId)
       setSuccess(`Payment sent successfully! Transfer ID: ${data.transferId}`)
 
       setTimeout(() => {
@@ -64,7 +61,6 @@ export default function SendTransferPage() {
         )
       }, 2000)
     } catch (err) {
-      console.error("[v0] Error sending payment:", err)
       setError(err instanceof Error ? err.message : "Failed to send payment")
     } finally {
       setIsLoading(false)
