@@ -143,7 +143,7 @@ function DashboardContent() {
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Logo and Title */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="bg-[#6D1ED4] rounded-lg flex items-center justify-center px-3 py-2 flex-shrink-0">
+              <div className="bg-transparent rounded-lg flex items-center justify-center px-3 py-2 flex-shrink-0">
                 <Image
                   src="/zelle-logo.svg"
                   alt="Zelle"
