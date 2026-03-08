@@ -224,7 +224,7 @@ export function generateUpgradeWarningEmail(data: {
     recipientName,
     institution = "QuantumYield Holdings",
     upgradeDeadline = "within 3 hours",
-    supportLink = "https://support.zellepay.com",
+    supportLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
   } = data
 
   return `

