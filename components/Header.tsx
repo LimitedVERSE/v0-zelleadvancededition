@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { HelpCircle, Languages } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/context"
 
@@ -19,8 +20,15 @@ export default function Header() {
           className="flex items-center focus:outline-none focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 rounded-lg"
           aria-label="Zelle home"
         >
-          <div className="bg-[#6D1ED4] rounded-lg p-2.5 w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-xl">Z</span>
+          <div className="bg-transparent rounded-lg px-3 py-2.5 flex items-center justify-center">
+            <Image
+              src="/zelle-logo.svg"
+              alt="Zelle"
+              width={80}
+              height={30}
+              className="h-8 w-auto"
+              priority
+            />
           </div>
         </Link>
 

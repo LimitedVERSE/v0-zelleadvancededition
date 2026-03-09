@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import Image from "next/image"
 import type { ZelleMockPayload } from "@/types/zelle"
 
 interface CountdownRedirectScreenProps {
@@ -39,8 +40,15 @@ export default function CountdownRedirectScreen({ data }: CountdownRedirectScree
 
       <header className="border-b border-zinc-800 bg-black">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-          <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#6D1ED4] flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">Z</span>
+          <div className="bg-transparent rounded-lg px-3 py-2 flex items-center justify-center">
+            <Image
+              src="/zelle-logo.svg"
+              alt="Zelle"
+              width={80}
+              height={30}
+              className="h-7 w-auto"
+              priority
+            />
           </div>
           <h1 className="text-xl font-semibold text-white">{data.bankVisuals.name}</h1>
         </div>

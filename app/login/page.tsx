@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -38,9 +40,18 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl bg-zinc-900/50 backdrop-blur-sm border-zinc-800">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-[#6D1ED4] rounded-lg flex items-center justify-center p-3 shadow-lg">
-              <div className="text-white font-bold text-3xl">Z</div>
-            </div>
+            <Link href="/" aria-label="Zelle home">
+              <div className="bg-transparent rounded-lg px-4 py-3 flex items-center justify-center">
+                <Image
+                  src="/zelle-logo.svg"
+                  alt="Zelle"
+                  width={90}
+                  height={34}
+                  className="h-8 w-auto"
+                  priority
+                />
+              </div>
+            </Link>
           </div>
           <CardTitle className="text-2xl text-white">Zelle Partner Network</CardTitle>
           <CardDescription className="text-zinc-400">Sign in to your account</CardDescription>
