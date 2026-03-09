@@ -407,7 +407,6 @@ export default function AdminDashboard() {
             </Card>
           </div>
         </div>
-      </main>
 
       <Dialog open={previewTransfer !== null} onOpenChange={() => setPreviewTransfer(null)}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
