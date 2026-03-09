@@ -1,35 +1,83 @@
-# v0-zelleadvancededition
+# Zelle Advanced Edition
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+A comprehensive Zelle money transfer management platform for the United States, featuring real-time transaction processing, multi-language support, and advanced security features.
 
-## Built with v0
+## Overview
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+This application provides a full-featured Zelle transfer system with:
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_66JLNNOzV1MLKWFCC0r21lSQC8ZQ)
+- **Real-time Money Transfers**: Send and receive Zelle payments instantly
+- **Multi-Language Support**: English and French language options
+- **Admin Dashboard**: Comprehensive transaction management and reporting
+- **Security Features**: Advanced authentication and fraud protection
+- **US Bank Integration**: Support for major US financial institutions
+- **Email Notifications**: Automated transfer confirmations via SendGrid
+
+## Key Features
+
+### User Features
+- Send money to email addresses or phone numbers
+- View transaction history and status
+- Manage recipient list
+- Multi-state support (all 50 US states + DC)
+- Real-time balance tracking
+
+### Admin Features
+- Transaction monitoring and management
+- Email template customization
+- Analytics and reporting
+- User management
+- Security controls
+
+### Supported Banks
+- Chase Bank
+- Bank of America
+- Wells Fargo
+- Citibank
+- US Bank
+- PNC Bank
+- Capital One
+- TD Bank
+- Truist
+- And many more US financial institutions
+
+## Technology Stack
+
+- **Framework**: Next.js 16 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **UI Components**: shadcn/ui
+- **Email**: SendGrid integration
+- **State Management**: React Context API
+- **Internationalization**: Custom i18n implementation
+
+## Color Scheme
+
+The application uses Zelle's signature purple branding:
+- Primary: `#6D1ED4` (Zelle Purple)
+- Accent: `#8B5CF6` (Light Purple)
+- Dark: `#5B21B6` (Dark Purple)
+
+## Environment Variables
+
+Required environment variables:
+- `SENDGRID_API_KEY`: SendGrid API key for email notifications
+- `SENDGRID_FROM_EMAIL`: Sender email address
+- `NEXT_PUBLIC_SENDER_EMAIL`: Public sender email
+- `NEXT_PUBLIC_APP_URL`: Application URL
 
 ## Getting Started
 
-First, run the development server:
+This application is designed to run in the v0 preview environment with automatic dependency resolution.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## Currency
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+All transactions are processed in USD (United States Dollar).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Support
 
-## Learn More
+For issues or questions, please refer to the in-app help documentation or contact support.
 
-To learn more, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
-
-<a href="https://v0.app/chat/api/kiro/clone/LimitedVERSE/v0-zelleadvancededition" alt="Open in Kiro"><img src="https://pdgvvgmkdvyeydso.public.blob.vercel-storage.com/open%20in%20kiro.svg?sanitize=true" /></a>
+Proprietary - All rights reserved

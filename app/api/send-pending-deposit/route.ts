@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { Resend } from "resend"
-import { generatePendingDepositEmailHtml } from "@/lib/email-template"
+import { generateZelleEmailHtml } from "@/lib/email-template"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     const depositUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/deposit-portal?transferId=${transferId}&amount=${amount}&recipient=${recipient}&recipientName=${encodeURIComponent(recipientName || "")}&bankName=${encodeURIComponent(bankName || "Banking System")}&message=${encodeURIComponent(message || "")}&timestamp=${timestamp}`
 
-    const html = generatePendingDepositEmailHtml({
+    const html = generateZelleEmailHtml({
       amount: amountNumber,
       senderName: "Zelle",
       recipientName: recipientName || recipient,
@@ -29,28 +28,41 @@ export async function POST(request: NextRequest) {
       institution: bankName || "Banking System",
     })
 
-    if (!process.env.RESEND_API_KEY) {
-      return NextResponse.json(
-        { error: "Email service not configured. Please add RESEND_API_KEY to environment variables." },
-        { status: 500 },
-      )
-    }
-
-    const resend = new Resend(process.env.RESEND_API_KEY)
-
-    const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "Zelle <noreply@zellepay.com>",
-      to: recipient,
-      subject: `Pending Deposit - ${transferId}`,
-      html,
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+      },
+      body: JSON.stringify({
+        personalizations: [
+          {
+            to: [{ email: recipient, name: recipientName || recipient }],
+          },
+        ],
+        from: {
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@zellepay.com",
+          name: "Zelle",
+        },
+        subject: `Pending Deposit - ${transferId}`,
+        content: [
+          {
+            type: "text/html",
+            value: html,
+          },
+        ],
+      }),
     })
 
-    if (error) {
-      return NextResponse.json({ error: "Failed to send email", details: error.message }, { status: 500 })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("SendGrid error:", errorText)
+      return NextResponse.json({ error: "Failed to send email", details: errorText }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, message: "Pending deposit email sent successfully" })
   } catch (error) {
+    console.error("Error sending pending deposit email:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

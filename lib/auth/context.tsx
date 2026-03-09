@@ -11,6 +11,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   isLoading: boolean
+  isHydrated: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => void
 }
@@ -19,15 +20,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   // Load user from localStorage on mount
   useEffect(() => {
     const savedUser = localStorage.getItem("zelle-user")
     if (savedUser) {
-      setUser(JSON.parse(savedUser))
+      try {
+        setUser(JSON.parse(savedUser))
+      } catch {
+        localStorage.removeItem("zelle-user")
+      }
     }
-    setIsLoading(false)
+    setIsHydrated(true)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -57,7 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("zelle-user")
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, login, logout }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, isLoading, isHydrated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

@@ -8,19 +8,25 @@ interface LanguageContextType {
   language: Language
   setLanguage: (lang: Language) => void
   t: Translations
+  isHydrated: boolean
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("en")
+  const [isHydrated, setIsHydrated] = useState(false)
 
   // Load language from localStorage on mount
   useEffect(() => {
     const savedLanguage = localStorage.getItem("zelle-language") as Language | null
     if (savedLanguage && (savedLanguage === "en" || savedLanguage === "fr")) {
       setLanguageState(savedLanguage)
+      document.documentElement.lang = savedLanguage
+    } else {
+      document.documentElement.lang = "en"
     }
+    setIsHydrated(true)
   }, [])
 
   // Save language to localStorage when it changes
@@ -35,6 +41,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     language,
     setLanguage,
     t: translations[language],
+    isHydrated,
   }
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>

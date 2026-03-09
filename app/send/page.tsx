@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card"
 import { Send, Users, Download, Settings, CheckCircle2, XCircle } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 export default function SendTransferPage() {
@@ -34,6 +33,8 @@ export default function SendTransferPage() {
     setError("")
     setSuccess("")
 
+    console.log("[v0] Form submitted:", formData.recipient)
+
     try {
       const response = await fetch("/api/send-zelle", {
         method: "POST",
@@ -54,6 +55,7 @@ export default function SendTransferPage() {
         throw new Error(data.error || "Failed to send payment")
       }
 
+      console.log("[v0] Payment sent successfully:", data.transferId)
       setSuccess(`Payment sent successfully! Transfer ID: ${data.transferId}`)
 
       setTimeout(() => {
@@ -62,6 +64,7 @@ export default function SendTransferPage() {
         )
       }, 2000)
     } catch (err) {
+      console.error("[v0] Error sending payment:", err)
       setError(err instanceof Error ? err.message : "Failed to send payment")
     } finally {
       setIsLoading(false)
@@ -73,18 +76,12 @@ export default function SendTransferPage() {
       <header className="border-b bg-white shadow-sm border-b-4 border-[#6D1ED4]">
         <div className="container mx-auto px-4 py-4 md:py-6">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3" aria-label="Zelle home">
-              <div className="bg-transparent rounded-lg px-3 py-2 flex items-center justify-center">
-                <Image
-                  src="/zelle-logo.svg"
-                  alt="Zelle"
-                  width={80}
-                  height={30}
-                  className="h-7 w-auto"
-                  priority
-                />
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-[#6D1ED4] rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-2xl">Z</span>
               </div>
               <div>
+                <h1 className="text-xl md:text-2xl font-bold text-[#1a1a1a]">Zelle</h1>
                 <p className="text-sm text-muted-foreground">Advanced Edition</p>
               </div>
             </Link>

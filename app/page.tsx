@@ -44,6 +44,7 @@ function HomeContent() {
     setIsSubmitting(true)
 
     setTimeout(() => {
+      console.log("[v0] Connecting to bank:", manualForm)
       window.open(`/bank/${manualForm.institution}`, "_blank")
       setIsSubmitting(false)
 
