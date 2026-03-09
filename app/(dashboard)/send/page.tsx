@@ -207,9 +207,12 @@ export default function SendTransferPage() {
         </Card>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Back to Home
-          </Link>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
     </div>
   )
