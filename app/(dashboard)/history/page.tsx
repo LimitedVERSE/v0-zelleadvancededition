@@ -1,12 +1,9 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Search, Eye, EyeOff } from "lucide-react"
+import { Search, Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
 import { useState, useEffect } from "react"
 
 interface DepositHistory {
@@ -59,39 +56,7 @@ function HistoryContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
-      <header className="border-b border-zinc-800 bg-black/50 backdrop-blur-sm shadow-lg sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 md:py-6 max-w-7xl">
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={() => router.push("/dashboard")}
-              variant="outline"
-              className="gap-2 border-zinc-800 hover:bg-zinc-900 text-white"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <Link href="/" className="flex items-center gap-3" aria-label="Zelle home">
-              <div className="bg-transparent rounded-lg px-3 py-2 flex items-center justify-center">
-                <Image
-                  src="/zelle-logo.svg"
-                  alt="Zelle"
-                  width={80}
-                  height={30}
-                  className="h-7 w-auto"
-                  priority
-                />
-              </div>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Depository History</h1>
-              <p className="text-sm text-zinc-400">View and manage your transfer history</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
@@ -200,15 +165,10 @@ function HistoryContent() {
             ))}
           </div>
         )}
-      </main>
     </div>
   )
 }
 
 export default function HistoryPage() {
-  return (
-    <ProtectedRoute>
-      <HistoryContent />
-    </ProtectedRoute>
-  )
+  return <HistoryContent />
 }

@@ -1,12 +1,9 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/protected-route"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { ArrowLeft, Bell, Mail } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Bell, Mail } from "lucide-react"
 import { useState, useEffect } from "react"
 
 interface NotificationSettings {
@@ -19,7 +16,6 @@ interface NotificationSettings {
 }
 
 function NotificationsContent() {
-  const router = useRouter()
   const [settings, setSettings] = useState<NotificationSettings>({
     emailOnReceive: true,
     emailOnSend: true,
@@ -46,23 +42,7 @@ function NotificationsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
-      <header className="border-b border-zinc-800 bg-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard")} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Notifications</h1>
-              <p className="text-sm text-zinc-400">Manage your email alerts and preferences</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
         {saved && (
           <div className="mb-4 p-4 bg-green-950/50 border border-green-500/20 rounded-lg text-green-400 text-center">
             Settings saved successfully
@@ -160,15 +140,10 @@ function NotificationsContent() {
             </div>
           </CardContent>
         </Card>
-      </main>
     </div>
   )
 }
 
 export default function NotificationsPage() {
-  return (
-    <ProtectedRoute>
-      <NotificationsContent />
-    </ProtectedRoute>
-  )
+  return <NotificationsContent />
 }

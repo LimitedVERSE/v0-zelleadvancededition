@@ -5,7 +5,7 @@ import { RemittanceClassFilterPanel } from "@/components/RemittanceClassFilterPa
 import { RemittanceClassSummaryChips } from "@/components/RemittanceClassSummaryChips"
 import { REMITTANCE_CLASSES } from "@/lib/remittance-catalog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import Header from "@/components/Header"
+
 
 export default function RemittanceClassDemoPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -17,9 +17,7 @@ export default function RemittanceClassDemoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="space-y-6">
           {/* Page header */}
           <div className="space-y-2">
@@ -62,7 +60,6 @@ export default function RemittanceClassDemoPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
     </div>
   )
 }

@@ -1,12 +1,10 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Plus, Search, Trash2, Mail, User } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Plus, Search, Trash2, Mail, User } from "lucide-react"
 import { useState, useEffect } from "react"
 
 interface Recipient {
@@ -18,7 +16,6 @@ interface Recipient {
 }
 
 function RecipientsContent() {
-  const router = useRouter()
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddForm, setShowAddForm] = useState(false)
@@ -61,23 +58,7 @@ function RecipientsContent() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
-      <header className="border-b border-zinc-800 bg-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard")} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Manage Recipients</h1>
-              <p className="text-sm text-zinc-400">Add and organize your frequent recipients</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-400" />
@@ -181,15 +162,10 @@ function RecipientsContent() {
             </p>
           </div>
         )}
-      </main>
     </div>
   )
 }
 
 export default function RecipientsPage() {
-  return (
-    <ProtectedRoute>
-      <RecipientsContent />
-    </ProtectedRoute>
-  )
+  return <RecipientsContent />
 }

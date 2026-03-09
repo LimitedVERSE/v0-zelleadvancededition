@@ -10,8 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card } from "@/components/ui/card"
 import { Send, Users, Download, Settings, CheckCircle2, XCircle } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 export default function SendTransferPage() {
@@ -69,30 +67,7 @@ export default function SendTransferPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-100">
-      <header className="border-b bg-white shadow-sm border-b-4 border-[#6D1ED4]">
-        <div className="container mx-auto px-4 py-4 md:py-6">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3" aria-label="Zelle home">
-              <div className="bg-transparent rounded-lg px-3 py-2 flex items-center justify-center">
-                <Image
-                  src="/zelle-logo.svg"
-                  alt="Zelle"
-                  width={80}
-                  height={30}
-                  className="h-7 w-auto"
-                  priority
-                />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Advanced Edition</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Card className="p-6 md:p-8">
           <h2 className="text-2xl font-bold mb-6">Send Payment</h2>
 
@@ -236,7 +211,6 @@ export default function SendTransferPage() {
             ← Back to Home
           </Link>
         </div>
-      </main>
     </div>
   )
 }

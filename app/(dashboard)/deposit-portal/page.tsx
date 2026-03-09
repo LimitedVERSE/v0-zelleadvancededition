@@ -177,9 +177,7 @@ export default function DepositPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/50">
-      <Header />
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         {transferData && (
           <div className="mb-8 space-y-6">
             <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-6">
@@ -753,7 +751,6 @@ export default function DepositPortal() {
             </form>
           </section>
         )}
-      </main>
     </div>
   )
 }
