@@ -20,7 +20,7 @@ export default function Header() {
           className="flex items-center focus:outline-none focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 rounded-lg"
           aria-label="Zelle home"
         >
-          <div className="bg-[#6D1ED4] rounded-lg px-3 py-2.5 flex items-center justify-center shadow-md">
+          <div className="bg-transparent rounded-lg px-3 py-2.5 flex items-center justify-center">
             <Image
               src="/zelle-logo.svg"
               alt="Zelle"

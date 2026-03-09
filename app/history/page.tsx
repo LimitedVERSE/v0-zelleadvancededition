@@ -72,7 +72,7 @@ function HistoryContent() {
               Back
             </Button>
             <Link href="/" className="flex items-center gap-3" aria-label="Zelle home">
-              <div className="bg-[#6D1ED4] rounded-lg px-3 py-2 flex items-center justify-center">
+              <div className="bg-transparent rounded-lg px-3 py-2 flex items-center justify-center">
                 <Image
                   src="/zelle-logo.svg"
                   alt="Zelle"

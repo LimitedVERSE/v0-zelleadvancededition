@@ -41,7 +41,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
             <Link href="/" aria-label="Zelle home">
-              <div className="bg-[#6D1ED4] rounded-lg px-4 py-3 flex items-center justify-center shadow-lg">
+              <div className="bg-transparent rounded-lg px-4 py-3 flex items-center justify-center">
                 <Image
                   src="/zelle-logo.svg"
                   alt="Zelle"

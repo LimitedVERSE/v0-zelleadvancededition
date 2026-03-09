@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { Send, DollarSign, Mail, User, ArrowRight, CheckCircle, AlertCircle, Clock, Eye } from "lucide-react"
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -142,8 +143,15 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-4 py-4 md:py-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#6D1ED4] rounded-lg flex items-center justify-center p-2">
-                <span className="text-white font-bold text-2xl">Z</span>
+              <div className="bg-transparent rounded-lg px-3 py-2 flex items-center justify-center">
+                <Image
+                  src="/zelle-logo.svg"
+                  alt="Zelle"
+                  width={80}
+                  height={30}
+                  className="h-7 w-auto"
+                  priority
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Zelle Partner Network</h1>
