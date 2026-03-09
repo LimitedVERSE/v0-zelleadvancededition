@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -145,5 +146,5 @@ function NotificationsContent() {
 }
 
 export default function NotificationsPage() {
-  return <NotificationsContent />
+  return <DashboardShellWithAuth><NotificationsContent /></DashboardShellWithAuth>
 }

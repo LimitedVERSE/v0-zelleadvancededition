@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { useState } from "react"
 import { RemittanceClassFilterPanel } from "@/components/RemittanceClassFilterPanel"
 import { RemittanceClassSummaryChips } from "@/components/RemittanceClassSummaryChips"
@@ -7,7 +8,7 @@ import { REMITTANCE_CLASSES } from "@/lib/remittance-catalog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 
-export default function RemittanceClassDemoPage() {
+function RemittanceContent() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const selectedClasses = REMITTANCE_CLASSES.filter((cls) => selectedIds.includes(cls.id))
@@ -62,4 +63,8 @@ export default function RemittanceClassDemoPage() {
         </div>
     </div>
   )
+}
+
+export default function RemittancePage() {
+  return <DashboardShellWithAuth><RemittanceContent /></DashboardShellWithAuth>
 }

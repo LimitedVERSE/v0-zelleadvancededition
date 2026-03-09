@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { useState } from "react"
 import { Send, DollarSign, Mail, User, ArrowRight, CheckCircle, AlertCircle, Clock, Eye } from "lucide-react"
 import Image from "next/image"
@@ -24,7 +25,7 @@ interface TransferStatus {
   message?: string
 }
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null
@@ -539,4 +540,8 @@ export default function AdminDashboard() {
       </Dialog>
     </div>
   )
+}
+
+export default function AdminPage() {
+  return <DashboardShellWithAuth><AdminDashboardContent /></DashboardShellWithAuth>
 }

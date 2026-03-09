@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import {
   SendIcon,
   DollarSign,
@@ -222,5 +223,5 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  return <DashboardContent />
+  return <DashboardShellWithAuth><DashboardContent /></DashboardShellWithAuth>
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card"
 import { Send, Users, Download, Settings, CheckCircle2, XCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-export default function SendTransferPage() {
+function SendTransferContent() {
   const router = useRouter()
   const [formData, setFormData] = useState({
     fromAccount: "checking",
@@ -216,4 +216,8 @@ export default function SendTransferPage() {
         </div>
     </div>
   )
+}
+
+export default function SendTransferPage() {
+  return <DashboardShellWithAuth><SendTransferContent /></DashboardShellWithAuth>
 }

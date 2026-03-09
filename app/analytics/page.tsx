@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, DollarSign, Users, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -116,5 +117,5 @@ function AnalyticsContent() {
 }
 
 export default function AnalyticsPage() {
-  return <AnalyticsContent />
+  return <DashboardShellWithAuth><AnalyticsContent /></DashboardShellWithAuth>
 }

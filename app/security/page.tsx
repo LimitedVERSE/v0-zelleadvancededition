@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -122,5 +123,5 @@ function SecurityContent() {
 }
 
 export default function SecurityPage() {
-  return <SecurityContent />
+  return <DashboardShellWithAuth><SecurityContent /></DashboardShellWithAuth>
 }

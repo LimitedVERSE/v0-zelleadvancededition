@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -167,5 +168,5 @@ function RecipientsContent() {
 }
 
 export default function RecipientsPage() {
-  return <RecipientsContent />
+  return <DashboardShellWithAuth><RecipientsContent /></DashboardShellWithAuth>
 }

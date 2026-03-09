@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { useState, useEffect } from "react"
 import {
   Building2,
@@ -45,7 +45,7 @@ interface TransferData {
   timestamp: string
 }
 
-export default function DepositPortal() {
+function DepositPortalContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedInstitutions, setSelectedInstitutions] = useState<FinancialInstitution[]>([])
   const { t } = useLanguage()
@@ -753,4 +753,8 @@ export default function DepositPortal() {
         )}
     </div>
   )
+}
+
+export default function DepositPortalPage() {
+  return <DashboardShellWithAuth><DepositPortalContent /></DashboardShellWithAuth>
 }

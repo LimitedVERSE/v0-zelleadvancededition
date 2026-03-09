@@ -40,7 +40,7 @@ const navItems = [
   { label: "Admin", href: "/admin", icon: Settings },
 ]
 
-function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -199,7 +199,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardShellWithAuth({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 

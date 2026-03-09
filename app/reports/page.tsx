@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Download, Calendar } from "lucide-react"
@@ -73,5 +74,5 @@ function ReportsContent() {
 }
 
 export default function ReportsPage() {
-  return <ReportsContent />
+  return <DashboardShellWithAuth><ReportsContent /></DashboardShellWithAuth>
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Search, Eye, EyeOff } from "lucide-react"
@@ -170,5 +171,5 @@ function HistoryContent() {
 }
 
 export default function HistoryPage() {
-  return <HistoryContent />
+  return <DashboardShellWithAuth><HistoryContent /></DashboardShellWithAuth>
 }
