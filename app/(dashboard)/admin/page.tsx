@@ -405,7 +405,6 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </div>
         </div>
 
       <Dialog open={previewTransfer !== null} onOpenChange={() => setPreviewTransfer(null)}>
