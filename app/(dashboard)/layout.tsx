@@ -82,7 +82,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       >
         {/* Sidebar header */}
         <div className="flex items-center justify-between px-3 py-4 border-b border-zinc-800/60 h-16 flex-shrink-0">
-          {sidebarOpen && (
+          {sidebarOpen ? (
             <Link href="/dashboard" onClick={() => setMobileSidebarOpen(false)}>
               <Image
                 src="/zelle-logo.svg"
@@ -90,6 +90,17 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
                 width={72}
                 height={27}
                 className="h-6 w-auto"
+                priority
+              />
+            </Link>
+          ) : (
+            <Link href="/dashboard" onClick={() => setMobileSidebarOpen(false)} className="flex items-center justify-center w-full" aria-label="Zelle home">
+              <Image
+                src="/zelle-icon.png"
+                alt="Zelle"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full"
                 priority
               />
             </Link>
