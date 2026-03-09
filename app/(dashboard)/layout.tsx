@@ -96,11 +96,11 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           ) : (
             <Link href="/dashboard" onClick={() => setMobileSidebarOpen(false)} className="flex items-center justify-center w-full" aria-label="Zelle home">
               <Image
-                src="/zelle-icon.png"
+                src="/letter_zelle_white.png"
                 alt="Zelle"
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain"
                 priority
               />
             </Link>
