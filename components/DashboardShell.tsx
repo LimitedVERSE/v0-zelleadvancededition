@@ -28,7 +28,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Send Money", href: "/send", icon: SendIcon },
   { label: "Deposit Portal", href: "/deposit-portal", icon: DollarSign },
-  { label: "Connect Bank", href: "/", icon: CreditCard },
+  { label: "Connect Bank", href: "/connect-bank", icon: CreditCard },
   { label: "History", href: "/history", icon: History },
   { label: "Remittance", href: "/remittance", icon: RefreshCcw },
   { label: "Recipients", href: "/recipients", icon: Users },

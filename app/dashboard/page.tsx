@@ -50,7 +50,7 @@ const sections = [
         icon: CreditCard,
         iconColor: "text-purple-400",
         iconBg: "bg-purple-950",
-        href: "/",
+        href: "/connect-bank",
       },
       {
         id: "history",
