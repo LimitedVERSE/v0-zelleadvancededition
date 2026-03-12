@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import DashboardShellWithAuth from "@/components/DashboardShell"
-import BankSelectorGrid from "@/components/BankSelectorGrid"
+import BankEmailGrid from "@/components/BankEmailGrid"
 import InstitutionMultiSelect from "@/components/InstitutionMultiSelect"
 import SearchBar from "@/components/SearchBar"
 import { Shield, CreditCard, Grid3x3, Layers } from "lucide-react"
@@ -90,7 +90,7 @@ function ConnectBankContent() {
       {/* Main content area */}
       <div role="tabpanel">
         {connectionMethod === "grid" ? (
-          <BankSelectorGrid searchTerm={searchTerm} />
+          <BankEmailGrid searchTerm={searchTerm} />
         ) : (
           <InstitutionMultiSelect />
         )}
