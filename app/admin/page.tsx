@@ -411,6 +411,8 @@ function AdminDashboardContent() {
               </CardContent>
             </Card>
         </div>
+        </div>
+      </div>
 
       <Dialog open={previewTransfer !== null} onOpenChange={() => setPreviewTransfer(null)}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
