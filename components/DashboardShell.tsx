@@ -22,22 +22,59 @@ import {
   LayoutDashboard,
   ChevronLeft,
   Menu,
+  LayoutTemplate,
 } from "lucide-react"
 
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Send Money", href: "/send", icon: SendIcon },
-  { label: "Deposit Portal", href: "/deposit-portal", icon: DollarSign },
-  { label: "Connect Bank", href: "/connect-bank", icon: CreditCard },
-  { label: "History", href: "/history", icon: History },
-  { label: "Remittance", href: "/remittance", icon: RefreshCcw },
-  { label: "Recipients", href: "/recipients", icon: Users },
-  { label: "Reports", href: "/reports", icon: FileText },
-  { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Security", href: "/security", icon: ShieldCheck },
-  { label: "Analytics", href: "/analytics", icon: BarChart3 },
-  { label: "Email Templates", href: "/admin/email-preview", icon: Mail },
-  { label: "Admin", href: "/admin", icon: Settings },
+interface NavItem {
+  label: string
+  href: string
+  icon: React.ElementType
+}
+
+interface NavSection {
+  heading?: string
+  items: NavItem[]
+}
+
+const navSections: NavSection[] = [
+  {
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    heading: "Payments",
+    items: [
+      { label: "Send Money", href: "/send", icon: SendIcon },
+      { label: "Deposit Portal", href: "/deposit-portal", icon: DollarSign },
+      { label: "Connect Bank", href: "/connect-bank", icon: CreditCard },
+      { label: "Remittance", href: "/remittance", icon: RefreshCcw },
+    ],
+  },
+  {
+    heading: "Activity",
+    items: [
+      { label: "History", href: "/history", icon: History },
+      { label: "Recipients", href: "/recipients", icon: Users },
+      { label: "Notifications", href: "/notifications", icon: Bell },
+      { label: "Reports", href: "/reports", icon: FileText },
+      { label: "Analytics", href: "/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    heading: "Email Studio",
+    items: [
+      { label: "Email Studio", href: "/email-studio", icon: LayoutTemplate },
+      { label: "Email Preview", href: "/admin/email-preview", icon: Mail },
+    ],
+  },
+  {
+    heading: "Settings",
+    items: [
+      { label: "Security", href: "/security", icon: ShieldCheck },
+      { label: "Admin", href: "/admin", icon: Settings },
+    ],
+  },
 ]
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -115,29 +152,46 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-3 space-y-0.5 px-2" aria-label="Main navigation">
-          {navItems.map(({ label, href, icon: Icon }) => {
-            const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href) && href !== "/")
-            return (
-              <Link
-                key={href + label}
-                href={href}
-                onClick={() => setMobileSidebarOpen(false)}
-                className={`
-                  flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 group
-                  ${isActive
-                    ? "bg-[#6D1ED4]/20 text-[#a855f7] border border-[#6D1ED4]/30"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
-                  }
-                `}
-                aria-current={isActive ? "page" : undefined}
-                title={!sidebarOpen ? label : undefined}
-              >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#a855f7]" : "text-zinc-500 group-hover:text-white"}`} />
-                {sidebarOpen && <span className="truncate">{label}</span>}
-              </Link>
-            )
-          })}
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4" aria-label="Main navigation">
+          {navSections.map((section, si) => (
+            <div key={si}>
+              {section.heading && sidebarOpen && (
+                <p className="px-2.5 mb-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-600 select-none">
+                  {section.heading}
+                </p>
+              )}
+              {section.heading && !sidebarOpen && si > 0 && (
+                <div className="mx-auto w-6 h-px bg-zinc-800 mb-1" />
+              )}
+              <div className="space-y-0.5">
+                {section.items.map(({ label, href, icon: Icon }) => {
+                  const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href) && href !== "/")
+                  const isEmailStudio = href === "/email-studio"
+                  return (
+                    <Link
+                      key={href + label}
+                      href={href}
+                      onClick={() => setMobileSidebarOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 group
+                        ${isActive
+                          ? "bg-[#6D1ED4]/20 text-[#a855f7] border border-[#6D1ED4]/30"
+                          : isEmailStudio
+                            ? "text-zinc-300 hover:text-white bg-[#6D1ED4]/8 hover:bg-[#6D1ED4]/20 border border-[#6D1ED4]/20 hover:border-[#6D1ED4]/40"
+                            : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
+                        }
+                      `}
+                      aria-current={isActive ? "page" : undefined}
+                      title={!sidebarOpen ? label : undefined}
+                    >
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#a855f7]" : isEmailStudio ? "text-[#a855f7]" : "text-zinc-500 group-hover:text-white"}`} />
+                      {sidebarOpen && <span className="truncate">{label}</span>}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User / logout */}

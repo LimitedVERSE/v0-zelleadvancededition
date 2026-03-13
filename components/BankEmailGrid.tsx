@@ -4,12 +4,31 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { searchBanks } from "@/services/bankService"
 import type { Bank } from "@/types/bank"
-import { Mail, Send, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Loader2, X, Lock } from "lucide-react"
+import { Mail, Send, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Loader2, X, Lock, DollarSign, Clock, ShieldAlert, BadgeCheck } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { getBankColor } from "@/lib/email-template"
 
 const FIXED_AMOUNT = "25.00"
 
-type EmailTemplate = "payment" | "upgrade-warning"
+type EmailTemplate = "payment" | "upgrade-warning" | "bank-payment" | "bank-security-alert" | "bank-account-verify" | "bank-pending-deposit"
+
+interface TemplateMeta {
+  label: string
+  icon: React.ElementType
+  color: string
+  apiRoute: string
+  templateParam: string
+  needsAmount: boolean
+}
+
+const TEMPLATE_META: Record<EmailTemplate, TemplateMeta> = {
+  "payment":               { label: "Payment",          icon: Mail,        color: "#6D1ED4", apiRoute: "/api/send-zelle",       templateParam: "payment",                needsAmount: true  },
+  "upgrade-warning":       { label: "Upgrade Warning",  icon: ShieldAlert,  color: "#ef4444", apiRoute: "/api/send-zelle",       templateParam: "upgrade-warning",        needsAmount: false },
+  "bank-payment":          { label: "Bank Payment",      icon: DollarSign,   color: "#10b981", apiRoute: "/api/send-bank-email",  templateParam: "bank-payment",           needsAmount: true  },
+  "bank-pending-deposit":  { label: "Pending Deposit",   icon: Clock,        color: "#f59e0b", apiRoute: "/api/send-bank-email",  templateParam: "bank-pending-deposit",   needsAmount: true  },
+  "bank-security-alert":   { label: "Security Alert",    icon: ShieldAlert,  color: "#ef4444", apiRoute: "/api/send-bank-email",  templateParam: "bank-security-alert",    needsAmount: false },
+  "bank-account-verify":   { label: "Verify Account",    icon: BadgeCheck,   color: "#3b82f6", apiRoute: "/api/send-bank-email",  templateParam: "bank-account-verify",    needsAmount: false },
+}
 
 interface BankEmailState {
   expanded: boolean
@@ -90,18 +109,35 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
     }
     update(bank.id, { status: "sending", errorMsg: "" })
 
+    const meta = TEMPLATE_META[state.template]
+    const isBankTemplate = meta.apiRoute === "/api/send-bank-email"
+    const bankColor = getBankColor(bank.id)
+
     try {
-      const res = await fetch("/api/send-zelle", {
+      const payload = isBankTemplate
+        ? {
+            recipientEmail: state.recipientEmail,
+            recipientName: state.recipientName,
+            bankId: bank.id,
+            bankName: bank.name,
+            bankLogo: bank.logo ? `${window.location.origin}${bank.logo}` : undefined,
+            bankColor,
+            template: meta.templateParam,
+            amount: FIXED_AMOUNT,
+          }
+        : {
+            recipientEmail: state.recipientEmail,
+            recipientName: state.recipientName,
+            amount: FIXED_AMOUNT,
+            emailTemplate: meta.templateParam,
+            bankId: bank.id,
+            bankName: bank.name,
+          }
+
+      const res = await fetch(meta.apiRoute, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          recipientEmail: state.recipientEmail,
-          recipientName: state.recipientName,
-          amount: FIXED_AMOUNT,
-          emailTemplate: state.template,
-          bankId: bank.id,
-          bankName: bank.name,
-        }),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Failed to send email")
@@ -193,20 +229,27 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
                   <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                     Email Template
                   </label>
-                  <div className="flex gap-2">
-                    {(["payment", "upgrade-warning"] as EmailTemplate[]).map((tpl) => (
-                      <button
-                        key={tpl}
-                        onClick={() => update(bank.id, { template: tpl })}
-                        className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-1 ${
-                          state.template === tpl
-                            ? "bg-[#6D1ED4] border-[#6D1ED4] text-white"
-                            : "border-border text-muted-foreground hover:border-[#6D1ED4]/50 hover:text-foreground"
-                        }`}
-                      >
-                        {tpl === "payment" ? "Payment" : "Upgrade Warning"}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {(Object.keys(TEMPLATE_META) as EmailTemplate[]).map((tpl) => {
+                      const meta = TEMPLATE_META[tpl]
+                      const Icon = meta.icon
+                      const isActive = state.template === tpl
+                      return (
+                        <button
+                          key={tpl}
+                          onClick={() => update(bank.id, { template: tpl })}
+                          className={`flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-1 ${
+                            isActive
+                              ? "text-white border-transparent"
+                              : "border-border text-muted-foreground hover:border-[#6D1ED4]/50 hover:text-foreground"
+                          }`}
+                          style={isActive ? { background: meta.color, borderColor: meta.color } : {}}
+                        >
+                          <Icon className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{meta.label}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
