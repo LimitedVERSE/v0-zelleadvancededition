@@ -32,10 +32,12 @@ function AdminDashboardContent() {
     message: string
   }>({ type: null, message: "" })
 
+  const FIXED_AMOUNT = "25.00"
+
   const [formData, setFormData] = useState({
     recipientEmail: "",
     recipientName: "",
-    amount: "",
+    amount: FIXED_AMOUNT,
     message: "",
     bankName: "Banking System",
     institutionCode: "000",
@@ -110,7 +112,7 @@ function AdminDashboardContent() {
       setFormData({
         recipientEmail: "",
         recipientName: "",
-        amount: "",
+        amount: FIXED_AMOUNT,
         message: "",
         bankName: "Banking System",
         institutionCode: "000",
@@ -225,19 +227,17 @@ function AdminDashboardContent() {
                       <div className="space-y-2">
                         <Label htmlFor="amount">
                           Amount (USD)
-                          <span className="text-red-500 ml-1">*</span>
                         </Label>
-                        <Input
+                        <div
                           id="amount"
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          placeholder="100.00"
-                          value={formData.amount}
-                          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                          className="border-2 focus-visible:ring-[#6D1ED4] text-lg font-semibold"
-                          required
-                        />
+                          className="flex items-center gap-2 h-10 px-3 rounded-md border-2 border-[#6D1ED4]/40 bg-[#6D1ED4]/5 cursor-not-allowed select-none"
+                          aria-label="Fixed deposit amount"
+                        >
+                          <DollarSign className="w-4 h-4 text-[#6D1ED4] flex-shrink-0" />
+                          <span className="text-lg font-bold text-[#6D1ED4]">25.00</span>
+                          <span className="text-xs text-muted-foreground ml-1">USD — fixed deposit amount</span>
+                          <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-[#6D1ED4]/70 bg-[#6D1ED4]/10 px-2 py-0.5 rounded-full">Locked</span>
+                        </div>
                       </div>
 
                       <div className="space-y-2">

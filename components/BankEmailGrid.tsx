@@ -4,8 +4,10 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { searchBanks } from "@/services/bankService"
 import type { Bank } from "@/types/bank"
-import { Mail, Send, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Loader2, X } from "lucide-react"
+import { Mail, Send, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Loader2, X, Lock } from "lucide-react"
 import { Input } from "@/components/ui/input"
+
+const FIXED_AMOUNT = "25.00"
 
 type EmailTemplate = "payment" | "upgrade-warning"
 
@@ -14,7 +16,6 @@ interface BankEmailState {
   template: EmailTemplate
   recipientEmail: string
   recipientName: string
-  amount: string
   status: "idle" | "sending" | "success" | "error"
   errorMsg: string
 }
@@ -25,7 +26,6 @@ function defaultState(): BankEmailState {
     template: "payment",
     recipientEmail: "",
     recipientName: "",
-    amount: "25000.00",
     status: "idle",
     errorMsg: "",
   }
@@ -88,11 +88,6 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
       update(bank.id, { status: "error", errorMsg: "Recipient name is required." })
       return
     }
-    if (state.template === "payment" && (!state.amount || isNaN(Number(state.amount)) || Number(state.amount) <= 0)) {
-      update(bank.id, { status: "error", errorMsg: "A valid amount is required for payment emails." })
-      return
-    }
-
     update(bank.id, { status: "sending", errorMsg: "" })
 
     try {
@@ -102,7 +97,7 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
         body: JSON.stringify({
           recipientEmail: state.recipientEmail,
           recipientName: state.recipientName,
-          amount: state.amount,
+          amount: FIXED_AMOUNT,
           emailTemplate: state.template,
           bankId: bank.id,
           bankName: bank.name,
@@ -243,23 +238,19 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
                   />
                 </div>
 
-                {/* Amount — only for payment template */}
+                {/* Amount — fixed at $25.00, shown for payment template */}
                 {state.template === "payment" && (
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1">
-                      Amount (USD) <span className="text-red-400">*</span>
+                      Amount (USD)
                     </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={state.amount}
-                        onChange={(e) => update(bank.id, { amount: e.target.value, status: "idle", errorMsg: "" })}
-                        className="h-8 text-sm pl-6"
-                        min="0.01"
-                        step="0.01"
-                      />
+                    <div className="flex items-center gap-2 h-8 px-3 rounded-md border border-[#6D1ED4]/40 bg-[#6D1ED4]/5 cursor-not-allowed select-none">
+                      <span className="text-sm font-bold text-[#6D1ED4]">$25.00</span>
+                      <span className="text-xs text-muted-foreground">USD</span>
+                      <div className="ml-auto flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#6D1ED4]/70">
+                        <Lock className="w-2.5 h-2.5" />
+                        Fixed
+                      </div>
                     </div>
                   </div>
                 )}
