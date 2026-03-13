@@ -4,11 +4,9 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { searchBanks } from "@/services/bankService"
 import type { Bank } from "@/types/bank"
-import { Mail, Send, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Loader2, X, Lock, DollarSign, Clock, ShieldAlert, BadgeCheck } from "lucide-react"
+import { Mail, Send, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Loader2, X, DollarSign, Clock, ShieldAlert, BadgeCheck } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { getBankColor } from "@/lib/email-template"
-
-const FIXED_AMOUNT = "25.00"
 
 type EmailTemplate = "payment" | "upgrade-warning" | "bank-payment" | "bank-security-alert" | "bank-account-verify" | "bank-pending-deposit"
 
@@ -35,6 +33,7 @@ interface BankEmailState {
   template: EmailTemplate
   recipientEmail: string
   recipientName: string
+  amount: string
   status: "idle" | "sending" | "success" | "error"
   errorMsg: string
 }
@@ -45,6 +44,7 @@ function defaultState(): BankEmailState {
     template: "payment",
     recipientEmail: "",
     recipientName: "",
+    amount: "25.00",
     status: "idle",
     errorMsg: "",
   }
@@ -123,12 +123,12 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
             bankLogo: bank.logo ? `${window.location.origin}${bank.logo}` : undefined,
             bankColor,
             template: meta.templateParam,
-            amount: FIXED_AMOUNT,
+            amount: state.amount,
           }
         : {
             recipientEmail: state.recipientEmail,
             recipientName: state.recipientName,
-            amount: FIXED_AMOUNT,
+            amount: state.amount,
             emailTemplate: meta.templateParam,
             bankId: bank.id,
             bankName: bank.name,
@@ -281,19 +281,23 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
                   />
                 </div>
 
-                {/* Amount — fixed at $25.00, shown for payment template */}
-                {state.template === "payment" && (
+                {/* Amount — shown for templates that need it */}
+                {meta.needsAmount && (
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1">
-                      Amount (USD)
+                      Amount (USD) <span className="text-red-400">*</span>
                     </label>
-                    <div className="flex items-center gap-2 h-8 px-3 rounded-md border border-[#6D1ED4]/40 bg-[#6D1ED4]/5 cursor-not-allowed select-none">
-                      <span className="text-sm font-bold text-[#6D1ED4]">$25.00</span>
-                      <span className="text-xs text-muted-foreground">USD</span>
-                      <div className="ml-auto flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#6D1ED4]/70">
-                        <Lock className="w-2.5 h-2.5" />
-                        Fixed
-                      </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">$</span>
+                      <Input
+                        type="number"
+                        placeholder="25.00"
+                        value={state.amount}
+                        onChange={(e) => update(bank.id, { amount: e.target.value, status: "idle", errorMsg: "" })}
+                        className="h-8 text-sm pl-6"
+                        min="0.01"
+                        step="0.01"
+                      />
                     </div>
                   </div>
                 )}
