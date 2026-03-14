@@ -138,7 +138,6 @@ function AdminDashboardContent() {
   }
 
   return (
-    <>
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -412,7 +411,6 @@ function AdminDashboardContent() {
             </Card>
         </div>
         </div>
-      </div>
 
       <Dialog open={previewTransfer !== null} onOpenChange={() => setPreviewTransfer(null)}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -544,7 +542,7 @@ function AdminDashboardContent() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }
 
