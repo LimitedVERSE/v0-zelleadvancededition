@@ -1,10 +1,8 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/protected-route"
-import { Button } from "@/components/ui/button"
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, TrendingUp, DollarSign, Users, ArrowUpRight, ArrowDownRight } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { TrendingUp, DollarSign, Users, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface AnalyticsData {
@@ -16,7 +14,6 @@ interface AnalyticsData {
 }
 
 function AnalyticsContent() {
-  const router = useRouter()
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalSent: 0,
     totalReceived: 0,
@@ -80,23 +77,7 @@ function AnalyticsContent() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
-      <header className="border-b border-zinc-800 bg-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard")} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Analytics</h1>
-              <p className="text-sm text-zinc-400">View your transaction statistics and insights</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {stats.map((stat) => {
             const IconComponent = stat.icon
@@ -131,15 +112,10 @@ function AnalyticsContent() {
             </div>
           </CardContent>
         </Card>
-      </main>
     </div>
   )
 }
 
 export default function AnalyticsPage() {
-  return (
-    <ProtectedRoute>
-      <AnalyticsContent />
-    </ProtectedRoute>
-  )
+  return <DashboardShellWithAuth><AnalyticsContent /></DashboardShellWithAuth>
 }

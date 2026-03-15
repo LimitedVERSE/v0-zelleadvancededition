@@ -1,14 +1,11 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/protected-route"
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, FileText, Download, Calendar } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { FileText, Download, Calendar } from "lucide-react"
 
 function ReportsContent() {
-  const router = useRouter()
-
   const reportTypes = [
     {
       title: "Transaction History",
@@ -34,23 +31,7 @@ function ReportsContent() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
-      <header className="border-b border-zinc-800 bg-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard")} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Transaction Reports</h1>
-              <p className="text-sm text-zinc-400">Generate and download detailed reports</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reportTypes.map((report) => {
             const IconComponent = report.icon
@@ -88,15 +69,10 @@ function ReportsContent() {
             </div>
           </CardContent>
         </Card>
-      </main>
     </div>
   )
 }
 
 export default function ReportsPage() {
-  return (
-    <ProtectedRoute>
-      <ReportsContent />
-    </ProtectedRoute>
-  )
+  return <DashboardShellWithAuth><ReportsContent /></DashboardShellWithAuth>
 }

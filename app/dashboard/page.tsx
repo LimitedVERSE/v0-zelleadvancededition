@@ -1,15 +1,13 @@
 "use client"
 
-import { useAuth } from "@/lib/auth/context"
 import { useRouter } from "next/navigation"
-import { ProtectedRoute } from "@/components/protected-route"
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import {
   SendIcon,
   DollarSign,
   CreditCard,
   History,
   Settings,
-  LogOut,
   Users,
   FileText,
   Bell,
@@ -22,7 +20,6 @@ import {
   Timer,
   Layers,
 } from "lucide-react"
-import Image from "next/image"
 
 const sections = [
   {
@@ -53,7 +50,7 @@ const sections = [
         icon: CreditCard,
         iconColor: "text-purple-400",
         iconBg: "bg-purple-950",
-        href: "/",
+        href: "/connect-bank",
       },
       {
         id: "history",
@@ -178,64 +175,11 @@ const sections = [
 ]
 
 function DashboardContent() {
-  const { user, logout } = useAuth()
   const router = useRouter()
 
-  const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
-
-  const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "U"
-
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0f0f0f] border-b border-zinc-800/60">
-        <div className="max-w-[1400px] mx-auto px-6 sm:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Image
-              src="/zelle-logo.svg"
-              alt="Zelle"
-              width={80}
-              height={30}
-              className="h-8 w-auto"
-              priority
-            />
-            <span className="text-zinc-500 text-sm hidden sm:block">Network Dashboard</span>
-          </div>
-
-          {/* User + Logout */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-medium text-white leading-tight">{user?.name}</span>
-              <span className="text-xs text-zinc-500 leading-tight">{user?.email}</span>
-            </div>
-            <div className="w-9 h-9 rounded-full bg-[#6D1ED4] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-              {initials}
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-zinc-400 hover:text-red-400 transition-colors text-sm"
-              aria-label="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <main className="max-w-[1400px] mx-auto px-6 sm:px-8 py-8 space-y-10">
+    <div className="text-white">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-8 py-8 space-y-10">
         {sections.map((section) => (
           <section key={section.label}>
             <h2 className="text-base font-semibold text-white mb-4 tracking-wide">
@@ -273,15 +217,11 @@ function DashboardContent() {
             </div>
           </section>
         ))}
-      </main>
+      </div>
     </div>
   )
 }
 
 export default function DashboardPage() {
-  return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
-  )
+  return <DashboardShellWithAuth><DashboardContent /></DashboardShellWithAuth>
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { useState, useEffect } from "react"
 import {
   Building2,
@@ -45,7 +45,7 @@ interface TransferData {
   timestamp: string
 }
 
-export default function DepositPortal() {
+function DepositPortalContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedInstitutions, setSelectedInstitutions] = useState<FinancialInstitution[]>([])
   const { t } = useLanguage()
@@ -177,9 +177,7 @@ export default function DepositPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/50">
-      <Header />
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
         {transferData && (
           <div className="mb-8 space-y-6">
             <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-6">
@@ -753,7 +751,10 @@ export default function DepositPortal() {
             </form>
           </section>
         )}
-      </main>
     </div>
   )
+}
+
+export default function DepositPortalPage() {
+  return <DashboardShellWithAuth><DepositPortalContent /></DashboardShellWithAuth>
 }

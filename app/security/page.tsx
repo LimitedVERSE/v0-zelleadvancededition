@@ -1,16 +1,14 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/protected-route"
+import DashboardShellWithAuth from "@/components/DashboardShell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, Lock, Key, Smartphone } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Lock, Key, Smartphone } from "lucide-react"
 import { useState } from "react"
 
 function SecurityContent() {
-  const router = useRouter()
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -27,23 +25,7 @@ function SecurityContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black">
-      <header className="border-b border-zinc-800 bg-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push("/dashboard")} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Security Settings</h1>
-              <p className="text-sm text-zinc-400">Manage your account security and authentication</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Card className="bg-zinc-900 border-zinc-800 mb-6">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -136,15 +118,10 @@ function SecurityContent() {
             </div>
           </CardContent>
         </Card>
-      </main>
     </div>
   )
 }
 
 export default function SecurityPage() {
-  return (
-    <ProtectedRoute>
-      <SecurityContent />
-    </ProtectedRoute>
-  )
+  return <DashboardShellWithAuth><SecurityContent /></DashboardShellWithAuth>
 }
