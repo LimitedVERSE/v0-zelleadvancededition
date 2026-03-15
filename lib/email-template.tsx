@@ -24,7 +24,7 @@ export function generateZelleEmailHtml(data: EmailData): string {
     senderName = "Your Institution",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -217,7 +217,7 @@ export function generatePendingDepositEmailHtml(data: EmailData): string {
     senderName = "Your Institution",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -543,7 +543,7 @@ export function generateBankPaymentEmail(data: BankBrandedEmailData): string {
     institution = "QuantumYield Treasury",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
 
   const msgBlock = message
@@ -744,7 +744,7 @@ export function generateBankPendingDepositEmail(data: BankBrandedEmailData): str
     institution = "QuantumYield Treasury",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
   const expiryDate = new Date(Date.now() + 48 * 60 * 60 * 1000).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
 

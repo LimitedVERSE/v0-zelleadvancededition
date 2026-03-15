@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     switch (template) {
       case "bank-payment":
         emailHtml = generateBankPaymentEmail(baseData)
-        emailSubject = `${TEMPLATE_SUBJECTS["bank-payment"]} — $${amountNum.toFixed(2)}`
+        emailSubject = `${TEMPLATE_SUBJECTS["bank-payment"]} — $${amountNum.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
         break
       case "bank-security-alert":
         emailHtml = generateBankSecurityAlertEmail(baseData)
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
         break
       case "bank-pending-deposit":
         emailHtml = generateBankPendingDepositEmail(baseData)
-        emailSubject = `${TEMPLATE_SUBJECTS["bank-pending-deposit"]} — $${amountNum.toFixed(2)} via ${bankName}`
+        emailSubject = `${TEMPLATE_SUBJECTS["bank-pending-deposit"]} — $${amountNum.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} via ${bankName}`
         break
       default:
         return NextResponse.json({ error: "Unknown template type" }, { status: 400 })
