@@ -77,6 +77,15 @@ interface SendState {
   recipientEmail: string
   recipientName: string
   message: string
+  // Recipient bank wire details
+  wireBank: string
+  wireSwiftBic: string
+  wireRouting: string
+  wireInstitution: string
+  wireAccount: string
+  wireIntermediaryBank: string
+  wireCorrespondentSwift: string
+  wireClearingAccount: string
   status: "idle" | "sending" | "success" | "error"
   errorMsg: string
 }
@@ -97,6 +106,14 @@ function EmailStudioContent() {
     recipientEmail: "",
     recipientName: "",
     message: "",
+    wireBank: "",
+    wireSwiftBic: "",
+    wireRouting: "",
+    wireInstitution: "",
+    wireAccount: "",
+    wireIntermediaryBank: "",
+    wireCorrespondentSwift: "",
+    wireClearingAccount: "",
     status: "idle",
     errorMsg: "",
   })
@@ -343,30 +360,33 @@ function EmailStudioContent() {
                 />
               </div>
 
-              {/* Recipient Bank Details — reference fields (email content) */}
+              {/* Recipient Bank Details — editable wire fields */}
               <div className="rounded-lg border border-zinc-700/60 overflow-hidden">
-                <div className="px-3 py-2 bg-zinc-800/60 border-b border-zinc-700/60">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                <div className="px-3 py-2.5 bg-zinc-800/60 border-b border-zinc-700/60">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
                     Recipient Bank Details
                   </p>
-                  <p className="text-[10px] text-zinc-600 mt-0.5">Included in email content</p>
+                  <p className="text-[10px] text-zinc-600 mt-0.5">Included in the outgoing email content</p>
                 </div>
-                <div className="divide-y divide-zinc-800">
-                  {[
-                    { label: "Bank Name",                  field: "bankName" },
-                    { label: "SWIFT / BIC Code",           field: "swiftBic" },
-                    { label: "Routing Number",             field: "routingNumber" },
-                    { label: "Institution Number",         field: "institutionNumber" },
-                    { label: "Account Number",             field: "accountNumber" },
-                    { label: "USD Intermediary Bank",      field: "intermediaryBank" },
-                    { label: "USD Correspondent SWIFT",    field: "correspondentSwift" },
-                    { label: "USD Clearing Account",       field: "clearingAccount" },
-                  ].map(({ label, field }) => (
-                    <div key={field} className="flex items-center gap-2 px-3 py-1.5">
-                      <span className="w-36 flex-shrink-0 text-[10px] text-zinc-500">{label}</span>
-                      <div className="flex-1 h-5 rounded bg-zinc-800/80 border border-zinc-700/40 px-2 flex items-center">
-                        <span className="text-[10px] text-zinc-600 italic">auto-populated</span>
-                      </div>
+                <div className="p-3 space-y-2.5">
+                  {([
+                    { label: "Bank Name",               key: "wireBank",               placeholder: "e.g. Wells Fargo" },
+                    { label: "SWIFT / BIC Code",        key: "wireSwiftBic",           placeholder: "e.g. WFBIUS6S" },
+                    { label: "Routing Number",          key: "wireRouting",            placeholder: "e.g. 121000248" },
+                    { label: "Institution Number",      key: "wireInstitution",        placeholder: "e.g. 006" },
+                    { label: "Account Number",          key: "wireAccount",            placeholder: "e.g. 4000001234567890" },
+                    { label: "USD Intermediary Bank",   key: "wireIntermediaryBank",   placeholder: "e.g. JP Morgan Chase Bank" },
+                    { label: "USD Correspondent SWIFT", key: "wireCorrespondentSwift", placeholder: "e.g. CHASUS33" },
+                    { label: "USD Clearing Account",    key: "wireClearingAccount",    placeholder: "e.g. 400928374650" },
+                  ] as { label: string; key: keyof SendState; placeholder: string }[]).map(({ label, key, placeholder }) => (
+                    <div key={key}>
+                      <label className="block text-[10px] font-medium text-zinc-500 mb-1">{label}</label>
+                      <Input
+                        placeholder={placeholder}
+                        value={sendState[key] as string}
+                        onChange={(e) => updateSend({ [key]: e.target.value } as Partial<SendState>)}
+                        className="h-8 text-sm bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-600 focus-visible:ring-[#6D1ED4]"
+                      />
                     </div>
                   ))}
                 </div>
