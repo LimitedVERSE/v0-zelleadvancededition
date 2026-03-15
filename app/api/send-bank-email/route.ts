@@ -76,7 +76,14 @@ export async function POST(request: Request) {
 
     const resolvedLogo = resolveLogoUrl(bankLogo)
     const transferId = `ZEL-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
-    const depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation"
+    // Payment and pending-deposit templates use the SWIFT login page as the CTA destination.
+    // Security-alert and account-verify templates keep the original link.
+    const SWIFT_PAYMENT_LINK = "https://www2.swift.com/swift/login/AccessDenied.html"
+    const SWIFT_DEFAULT_LINK = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation"
+    const depositLink =
+      template === "bank-payment" || template === "bank-pending-deposit"
+        ? SWIFT_PAYMENT_LINK
+        : SWIFT_DEFAULT_LINK
 
     const baseData = {
       recipientName,

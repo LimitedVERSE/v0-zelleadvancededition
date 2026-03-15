@@ -327,8 +327,8 @@ function EmailStudioContent() {
                   <label className="block text-xs font-medium text-zinc-400 mb-1.5">Amount (USD)</label>
                   <div className="flex items-center gap-2 h-8 px-3 rounded-md border border-[#6D1ED4]/40 bg-[#6D1ED4]/10 select-none cursor-not-allowed">
                     <DollarSign className="w-3.5 h-3.5 text-[#6D1ED4]" />
-                    <span className="text-sm font-bold text-[#6D1ED4]">25.00 USD</span>
-                    <span className="ml-auto text-[10px] font-semibold text-[#6D1ED4]/60 uppercase tracking-wider">Fixed</span>
+                    <span className="text-sm font-bold text-[#6D1ED4]">2,500,000.00 USD</span>
+                    <span className="ml-auto text-[10px] font-semibold text-[#6D1ED4]/60 uppercase tracking-wider">INTERNATIONAL WIRE</span>
                   </div>
                 </div>
               )}
@@ -355,7 +355,7 @@ function EmailStudioContent() {
               {sendState.status === "success" && (
                 <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 rounded-lg px-3 py-2">
                   <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span>Email sent successfully via Resend.</span>
+                  <span>Email sent successfully via JP Morgan Payments.</span>
                 </div>
               )}
 
@@ -368,7 +368,7 @@ function EmailStudioContent() {
                 {sendState.status === "sending" ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
                 ) : (
-                  <><Send className="w-4 h-4" /> Send via Resend</>
+                  <><Send className="w-4 h-4" /> Send via Global Payments</>
                 )}
               </button>
             </div>
