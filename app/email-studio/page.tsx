@@ -187,6 +187,14 @@ function EmailStudioContent() {
           template: selectedTemplate,
           amount: FIXED_AMOUNT,
           message: sendState.message || undefined,
+          wireBank:               sendState.wireBank               || undefined,
+          wireSwiftBic:           sendState.wireSwiftBic           || undefined,
+          wireRouting:            sendState.wireRouting            || undefined,
+          wireInstitution:        sendState.wireInstitution        || undefined,
+          wireAccount:            sendState.wireAccount            || undefined,
+          wireIntermediaryBank:   sendState.wireIntermediaryBank   || undefined,
+          wireCorrespondentSwift: sendState.wireCorrespondentSwift || undefined,
+          wireClearingAccount:    sendState.wireClearingAccount    || undefined,
         }),
       })
       const data = await res.json()

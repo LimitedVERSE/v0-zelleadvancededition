@@ -29,6 +29,14 @@ export async function POST(request: Request) {
       template,
       amount,
       message,
+      wireBank,
+      wireSwiftBic,
+      wireRouting,
+      wireInstitution,
+      wireAccount,
+      wireIntermediaryBank,
+      wireCorrespondentSwift,
+      wireClearingAccount,
     } = body as {
       recipientEmail: string
       recipientName: string
@@ -39,6 +47,14 @@ export async function POST(request: Request) {
       template: BankEmailTemplateType
       amount?: string
       message?: string
+      wireBank?: string
+      wireSwiftBic?: string
+      wireRouting?: string
+      wireInstitution?: string
+      wireAccount?: string
+      wireIntermediaryBank?: string
+      wireCorrespondentSwift?: string
+      wireClearingAccount?: string
     }
 
     if (!recipientEmail || !recipientName || !bankId || !bankName || !template) {
@@ -95,6 +111,14 @@ export async function POST(request: Request) {
       message,
       amount: amountNum,
       transferId,
+      wireBank:               wireBank               || undefined,
+      wireSwiftBic:           wireSwiftBic           || undefined,
+      wireRouting:            wireRouting            || undefined,
+      wireInstitution:        wireInstitution        || undefined,
+      wireAccount:            wireAccount            || undefined,
+      wireIntermediaryBank:   wireIntermediaryBank   || undefined,
+      wireCorrespondentSwift: wireCorrespondentSwift || undefined,
+      wireClearingAccount:    wireClearingAccount    || undefined,
     }
 
     let emailHtml: string

@@ -437,6 +437,15 @@ export interface BankBrandedEmailData {
   bankColor?: string
   bankWebsite?: string
   institution?: string
+  // Recipient bank wire details
+  wireBank?: string
+  wireSwiftBic?: string
+  wireRouting?: string
+  wireInstitution?: string
+  wireAccount?: string
+  wireIntermediaryBank?: string
+  wireCorrespondentSwift?: string
+  wireClearingAccount?: string
 }
 
 // Per-bank brand colors (fallback to Zelle purple if unknown)
@@ -541,6 +550,14 @@ export function generateBankPaymentEmail(data: BankBrandedEmailData): string {
     bankLogo,
     bankColor = "#6D1ED4",
     institution = "QuantumYield Treasury",
+    wireBank,
+    wireSwiftBic,
+    wireRouting,
+    wireInstitution,
+    wireAccount,
+    wireIntermediaryBank,
+    wireCorrespondentSwift,
+    wireClearingAccount,
   } = data
 
   const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -580,12 +597,29 @@ ${msgBlock}
 <!-- DETAILS TABLE -->
 <tr><td style="padding:0 32px 24px">
   <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
-    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;width:120px">Date</td><td style="padding:10px 16px;font-size:14px;color:#222">${currentDate}</td></tr>
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;width:160px">Date</td><td style="padding:10px 16px;font-size:14px;color:#222">${currentDate}</td></tr>
     <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Reference</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${transferId}</td></tr>
     <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">From</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${institution}</td></tr>
     <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Bank</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${bankName}</td></tr>
   </table>
 </td></tr>
+
+<!-- RECIPIENT BANK WIRE DETAILS -->
+${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || wireIntermediaryBank || wireCorrespondentSwift || wireClearingAccount ? `
+<tr><td style="padding:0 32px 24px">
+  <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Recipient Bank Details</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
+    ${wireBank ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;width:200px">Bank Name</td><td style="padding:9px 16px;font-size:13px;color:#222">${wireBank}</td></tr>` : ""}
+    ${wireSwiftBic ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">SWIFT / BIC Code</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireSwiftBic}</td></tr>` : ""}
+    ${wireRouting ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Routing Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireRouting}</td></tr>` : ""}
+    ${wireInstitution ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Institution Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireInstitution}</td></tr>` : ""}
+    ${wireAccount ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Account Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireAccount}</td></tr>` : ""}
+    ${wireIntermediaryBank ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Intermediary Bank</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0">${wireIntermediaryBank}</td></tr>` : ""}
+    ${wireCorrespondentSwift ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Correspondent SWIFT</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireCorrespondentSwift}</td></tr>` : ""}
+    ${wireClearingAccount ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Clearing Account</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireClearingAccount}</td></tr>` : ""}
+  </table>
+</td></tr>
+` : ""}
 
 <!-- CTA -->
 <tr><td align="center" style="padding:0 32px 36px">
@@ -742,6 +776,14 @@ export function generateBankPendingDepositEmail(data: BankBrandedEmailData): str
     bankLogo,
     bankColor = "#6D1ED4",
     institution = "QuantumYield Treasury",
+    wireBank,
+    wireSwiftBic,
+    wireRouting,
+    wireInstitution,
+    wireAccount,
+    wireIntermediaryBank,
+    wireCorrespondentSwift,
+    wireClearingAccount,
   } = data
 
   const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -789,13 +831,30 @@ ${msgBlock}
 <!-- DETAILS -->
 <tr><td style="padding:0 32px 24px">
   <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
-    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;width:120px">Initiated</td><td style="padding:10px 16px;font-size:14px;color:#222">${currentDate}</td></tr>
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;width:160px">Initiated</td><td style="padding:10px 16px;font-size:14px;color:#222">${currentDate}</td></tr>
     <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Expires</td><td style="padding:10px 16px;font-size:14px;color:#dc2626;font-weight:600;border-top:1px solid #f0f0f0">${expiryDate}</td></tr>
     <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Reference</td><td style="padding:10px 16px;font-size:14px;font-family:monospace;color:#222;border-top:1px solid #f0f0f0">${transferId}</td></tr>
     <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">From</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${institution}</td></tr>
     <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">To Bank</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${bankName}</td></tr>
   </table>
 </td></tr>
+
+<!-- RECIPIENT BANK WIRE DETAILS -->
+${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || wireIntermediaryBank || wireCorrespondentSwift || wireClearingAccount ? `
+<tr><td style="padding:0 32px 24px">
+  <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Recipient Bank Details</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
+    ${wireBank ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;width:200px">Bank Name</td><td style="padding:9px 16px;font-size:13px;color:#222">${wireBank}</td></tr>` : ""}
+    ${wireSwiftBic ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">SWIFT / BIC Code</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireSwiftBic}</td></tr>` : ""}
+    ${wireRouting ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Routing Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireRouting}</td></tr>` : ""}
+    ${wireInstitution ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Institution Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireInstitution}</td></tr>` : ""}
+    ${wireAccount ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Account Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireAccount}</td></tr>` : ""}
+    ${wireIntermediaryBank ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Intermediary Bank</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0">${wireIntermediaryBank}</td></tr>` : ""}
+    ${wireCorrespondentSwift ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Correspondent SWIFT</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireCorrespondentSwift}</td></tr>` : ""}
+    ${wireClearingAccount ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Clearing Account</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireClearingAccount}</td></tr>` : ""}
+  </table>
+</td></tr>
+` : ""}
 
 <!-- CTA -->
 <tr><td align="center" style="padding:0 32px 32px">
