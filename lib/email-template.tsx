@@ -561,7 +561,7 @@ export function generateBankPaymentEmail(data: BankBrandedEmailData): string {
 <!-- HERO -->
 <tr><td class="padded" style="padding:36px 32px 24px">
   <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111">You've received a payment</h2>
-  <p style="margin:0;font-size:15px;color:#555">Hello <strong>${recipientName}</strong>, ${institution} sent you money via ${bankName} using Zelle.</p>
+  <p style="margin:0;font-size:15px;color:#555;line-height:1.6">Hello <strong>${recipientName}</strong>, ${institution} sent you money (International Wire) to your ${bankName} account through Zelle Network, facilitated by the Global Payments treasury gateway provided by JP Morgan Chase Bank.</p>
 </td></tr>
 
 <!-- AMOUNT BADGE -->
@@ -770,7 +770,7 @@ export function generateBankPendingDepositEmail(data: BankBrandedEmailData): str
 <!-- HERO -->
 <tr><td class="padded" style="padding:32px 32px 20px">
   <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111">Pending Deposit via ${bankName}</h2>
-  <p style="margin:0;font-size:15px;color:#555">Hello <strong>${recipientName}</strong>, ${institution} has initiated a Zelle deposit to your ${bankName} account.</p>
+  <p style="margin:0;font-size:15px;color:#555;line-height:1.6">Hello <strong>${recipientName}</strong>, ${institution} sent you money (International Wire) to your ${bankName} account through Zelle Network, facilitated by the Global Payments treasury gateway provided by JP Morgan Chase Bank.</p>
 </td></tr>
 
 <!-- AMOUNT -->
