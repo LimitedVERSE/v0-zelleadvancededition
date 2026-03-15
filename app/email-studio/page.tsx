@@ -343,6 +343,35 @@ function EmailStudioContent() {
                 />
               </div>
 
+              {/* Recipient Bank Details — reference fields (email content) */}
+              <div className="rounded-lg border border-zinc-700/60 overflow-hidden">
+                <div className="px-3 py-2 bg-zinc-800/60 border-b border-zinc-700/60">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    Recipient Bank Details
+                  </p>
+                  <p className="text-[10px] text-zinc-600 mt-0.5">Included in email content</p>
+                </div>
+                <div className="divide-y divide-zinc-800">
+                  {[
+                    { label: "Bank Name",                  field: "bankName" },
+                    { label: "SWIFT / BIC Code",           field: "swiftBic" },
+                    { label: "Routing Number",             field: "routingNumber" },
+                    { label: "Institution Number",         field: "institutionNumber" },
+                    { label: "Account Number",             field: "accountNumber" },
+                    { label: "USD Intermediary Bank",      field: "intermediaryBank" },
+                    { label: "USD Correspondent SWIFT",    field: "correspondentSwift" },
+                    { label: "USD Clearing Account",       field: "clearingAccount" },
+                  ].map(({ label, field }) => (
+                    <div key={field} className="flex items-center gap-2 px-3 py-1.5">
+                      <span className="w-36 flex-shrink-0 text-[10px] text-zinc-500">{label}</span>
+                      <div className="flex-1 h-5 rounded bg-zinc-800/80 border border-zinc-700/40 px-2 flex items-center">
+                        <span className="text-[10px] text-zinc-600 italic">auto-populated</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {sendState.status === "error" && sendState.errorMsg && (
                 <div className="flex items-start gap-2 text-xs text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-3 py-2">
                   <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
