@@ -51,14 +51,37 @@ export async function POST(request: Request) {
     }
 
     const bankColor = rawColor || getBankColor(bankId)
-    const amountNum = amount ? parseFloat(amount) : 25
+    const amountNum = amount ? parseFloat(amount.replace(/,/g, "")) : 25
+
+    // Resolve an absolute logo URL safe for email clients.
+    // The client may send a relative path (/chase-logo.jpg) or a localhost URL —
+    // neither is reachable by email clients. Always rebuild from the deployment origin.
+    const deploymentOrigin =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+
+    function resolveLogoUrl(raw: string | undefined): string | undefined {
+      if (!raw) return undefined
+      // Strip any existing origin (localhost or otherwise) to get the path
+      let path = raw
+      try {
+        const parsed = new URL(raw)
+        path = parsed.pathname
+      } catch {
+        // already a relative path
+      }
+      if (!deploymentOrigin) return undefined
+      return `${deploymentOrigin}${path}`
+    }
+
+    const resolvedLogo = resolveLogoUrl(bankLogo)
     const transferId = `ZEL-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
     const depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation"
 
     const baseData = {
       recipientName,
       bankName,
-      bankLogo,
+      bankLogo: resolvedLogo,
       bankColor,
       depositLink,
       institution: "QuantumYield Treasury",

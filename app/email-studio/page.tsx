@@ -39,8 +39,8 @@ interface TemplateDef {
 const TEMPLATES: TemplateDef[] = [
   {
     id: "bank-payment",
-    label: "Payment Received",
-    description: "Notify recipient of an incoming Zelle payment from your institution.",
+    label: "Global Payments Received",
+    description: "Notify recipient of an incoming JP Morgan Chase payment from Global Payments to your institution.",
     icon: DollarSign,
     iconColor: "#10b981",
     needsAmount: true,
@@ -64,7 +64,7 @@ const TEMPLATES: TemplateDef[] = [
   {
     id: "bank-account-verify",
     label: "Account Verification",
-    description: "Request identity verification to activate Zelle on the recipient's bank account.",
+    description: "Request identity verification to activate JP Morgan Chase payment from Global Payments on the recipient's bank account.",
     icon: BadgeCheck,
     iconColor: "#3b82f6",
     needsAmount: false,
@@ -81,7 +81,7 @@ interface SendState {
   errorMsg: string
 }
 
-const FIXED_AMOUNT = "25.00"
+const FIXED_AMOUNT = "2,500,000.00"
 
 // ─── Page ─────────────────────────────────────────────────────────────────
 
@@ -119,9 +119,9 @@ function EmailStudioContent() {
         body: JSON.stringify({
           bankId: selectedBank.id,
           bankName: selectedBank.name,
-          bankLogo: `${window.location.origin}${selectedBank.logo}`,
+          bankLogo: selectedBank.logo,
           template: selectedTemplate,
-          recipientName: sendState.recipientName || "John Doe",
+          recipientName: sendState.recipientName || "Michael Dunagan",
           amount: FIXED_AMOUNT,
           message: sendState.message,
         }),
@@ -165,7 +165,7 @@ function EmailStudioContent() {
           recipientName: sendState.recipientName,
           bankId: selectedBank.id,
           bankName: selectedBank.name,
-          bankLogo: `${window.location.origin}${selectedBank.logo}`,
+          bankLogo: selectedBank.logo,
           bankColor: getBankColor(selectedBank.id),
           template: selectedTemplate,
           amount: FIXED_AMOUNT,
@@ -225,11 +225,10 @@ function EmailStudioContent() {
                   <button
                     key={bank.id}
                     onClick={() => setSelectedBank(bank)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
-                      isSelected
-                        ? "bg-[#6D1ED4]/15 border-l-2 border-[#6D1ED4]"
-                        : "hover:bg-zinc-800/50 border-l-2 border-transparent"
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isSelected
+                      ? "bg-[#6D1ED4]/15 border-l-2 border-[#6D1ED4]"
+                      : "hover:bg-zinc-800/50 border-l-2 border-transparent"
+                      }`}
                   >
                     <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
                       {bank.logo && !brokenImages.has(bank.id) ? (
@@ -270,11 +269,10 @@ function EmailStudioContent() {
                 <button
                   key={tpl.id}
                   onClick={() => setSelectedTemplate(tpl.id)}
-                  className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition-all ${
-                    isActive
-                      ? "bg-zinc-800 ring-1 ring-[#6D1ED4]/50"
-                      : "hover:bg-zinc-800/50"
-                  }`}
+                  className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition-all ${isActive
+                    ? "bg-zinc-800 ring-1 ring-[#6D1ED4]/50"
+                    : "hover:bg-zinc-800/50"
+                    }`}
                 >
                   <div
                     className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -490,7 +488,7 @@ function EmailStudioContent() {
                       style={{ background: getBankColor(selectedBank.id) }}
                     >
                       {currentTemplate.id === "bank-security-alert" ? "Secure My Account" :
-                       currentTemplate.id === "bank-account-verify" ? "Verify My Identity" : "Accept Payment"}
+                        currentTemplate.id === "bank-account-verify" ? "Verify My Identity" : "Accept Payment"}
                     </div>
                   </div>
                 </div>
