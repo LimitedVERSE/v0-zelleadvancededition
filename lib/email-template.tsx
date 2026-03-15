@@ -577,7 +577,7 @@ export function generateBankPaymentEmail(data: BankBrandedEmailData): string {
   const content = `
 <!-- HERO -->
 <tr><td class="padded" style="padding:36px 32px 24px">
-  <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111">You've received a payment</h2>
+  <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111">You've received an International Wire</h2>
   <p style="margin:0;font-size:15px;color:#555;line-height:1.6">Hello <strong>${recipientName}</strong>, ${institution} sent you money (International Wire) to your ${bankName} account through Zelle Network, facilitated by the Global Payments treasury gateway provided by JP Morgan Chase Bank.</p>
 </td></tr>
 
@@ -585,7 +585,7 @@ export function generateBankPaymentEmail(data: BankBrandedEmailData): string {
 <tr><td align="center" style="padding:0 32px 24px">
   <table cellpadding="0" cellspacing="0" style="width:100%">
   <tr><td align="center" bgcolor="${bankColor}" style="padding:24px;border-radius:8px">
-    <div style="font-size:12px;color:rgba(255,255,255,0.85);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Payment Amount</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.85);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">International Wire Amount</div>
     <div style="font-size:36px;font-weight:700;color:#fff">${formattedAmount}</div>
     <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px">USD via ${bankName}</div>
   </td></tr>
