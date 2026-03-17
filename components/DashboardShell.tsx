@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   Menu,
   LayoutTemplate,
+  Globe,
 } from "lucide-react"
 
 interface NavItem {
@@ -64,8 +65,9 @@ const navSections: NavSection[] = [
   {
     heading: "Email Studio",
     items: [
-      { label: "Email Studio", href: "/email-studio", icon: LayoutTemplate },
-      { label: "Email Preview", href: "/admin/email-preview", icon: Mail },
+      { label: "Email Studio",       href: "/email-studio",          icon: LayoutTemplate },
+      { label: "Regional Templates", href: "/email-studio/regional",  icon: Globe },
+      { label: "Email Preview",      href: "/admin/email-preview",    icon: Mail },
     ],
   },
   {
