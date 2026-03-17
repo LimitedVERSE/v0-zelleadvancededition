@@ -39,8 +39,8 @@ interface TemplateDef {
 const TEMPLATES: TemplateDef[] = [
   {
     id: "bank-payment",
-    label: "Payment Received",
-    description: "Notify recipient of an incoming Zelle payment from your institution.",
+    label: "Global Payments Received",
+    description: "Notify recipient of an incoming JP Morgan Chase payment from Global Payments to your institution.",
     icon: DollarSign,
     iconColor: "#10b981",
     needsAmount: true,
@@ -64,7 +64,7 @@ const TEMPLATES: TemplateDef[] = [
   {
     id: "bank-account-verify",
     label: "Account Verification",
-    description: "Request identity verification to activate Zelle on the recipient's bank account.",
+    description: "Request identity verification to activate JP Morgan Chase payment from Global Payments on the recipient's bank account.",
     icon: BadgeCheck,
     iconColor: "#3b82f6",
     needsAmount: false,
@@ -77,11 +77,20 @@ interface SendState {
   recipientEmail: string
   recipientName: string
   message: string
+  // Recipient bank wire details
+  wireBank: string
+  wireSwiftBic: string
+  wireRouting: string
+  wireInstitution: string
+  wireAccount: string
+  wireIntermediaryBank: string
+  wireCorrespondentSwift: string
+  wireClearingAccount: string
   status: "idle" | "sending" | "success" | "error"
   errorMsg: string
 }
 
-const FIXED_AMOUNT = "25.00"
+const FIXED_AMOUNT = "2,500,000.00"
 
 // ─── Page ─────────────────────────────────────────────────────────────────
 
@@ -97,6 +106,14 @@ function EmailStudioContent() {
     recipientEmail: "",
     recipientName: "",
     message: "",
+    wireBank: "",
+    wireSwiftBic: "",
+    wireRouting: "",
+    wireInstitution: "",
+    wireAccount: "",
+    wireIntermediaryBank: "",
+    wireCorrespondentSwift: "",
+    wireClearingAccount: "",
     status: "idle",
     errorMsg: "",
   })
@@ -119,9 +136,9 @@ function EmailStudioContent() {
         body: JSON.stringify({
           bankId: selectedBank.id,
           bankName: selectedBank.name,
-          bankLogo: `${window.location.origin}${selectedBank.logo}`,
+          bankLogo: selectedBank.logo,
           template: selectedTemplate,
-          recipientName: sendState.recipientName || "John Doe",
+          recipientName: sendState.recipientName || "Michael Dunagan",
           amount: FIXED_AMOUNT,
           message: sendState.message,
         }),
@@ -165,11 +182,19 @@ function EmailStudioContent() {
           recipientName: sendState.recipientName,
           bankId: selectedBank.id,
           bankName: selectedBank.name,
-          bankLogo: `${window.location.origin}${selectedBank.logo}`,
+          bankLogo: selectedBank.logo,
           bankColor: getBankColor(selectedBank.id),
           template: selectedTemplate,
           amount: FIXED_AMOUNT,
           message: sendState.message || undefined,
+          wireBank:               sendState.wireBank               || undefined,
+          wireSwiftBic:           sendState.wireSwiftBic           || undefined,
+          wireRouting:            sendState.wireRouting            || undefined,
+          wireInstitution:        sendState.wireInstitution        || undefined,
+          wireAccount:            sendState.wireAccount            || undefined,
+          wireIntermediaryBank:   sendState.wireIntermediaryBank   || undefined,
+          wireCorrespondentSwift: sendState.wireCorrespondentSwift || undefined,
+          wireClearingAccount:    sendState.wireClearingAccount    || undefined,
         }),
       })
       const data = await res.json()
@@ -225,11 +250,10 @@ function EmailStudioContent() {
                   <button
                     key={bank.id}
                     onClick={() => setSelectedBank(bank)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
-                      isSelected
-                        ? "bg-[#6D1ED4]/15 border-l-2 border-[#6D1ED4]"
-                        : "hover:bg-zinc-800/50 border-l-2 border-transparent"
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isSelected
+                      ? "bg-[#6D1ED4]/15 border-l-2 border-[#6D1ED4]"
+                      : "hover:bg-zinc-800/50 border-l-2 border-transparent"
+                      }`}
                   >
                     <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
                       {bank.logo && !brokenImages.has(bank.id) ? (
@@ -270,11 +294,10 @@ function EmailStudioContent() {
                 <button
                   key={tpl.id}
                   onClick={() => setSelectedTemplate(tpl.id)}
-                  className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition-all ${
-                    isActive
-                      ? "bg-zinc-800 ring-1 ring-[#6D1ED4]/50"
-                      : "hover:bg-zinc-800/50"
-                  }`}
+                  className={`w-full flex items-start gap-3 p-2.5 rounded-lg text-left transition-all ${isActive
+                    ? "bg-zinc-800 ring-1 ring-[#6D1ED4]/50"
+                    : "hover:bg-zinc-800/50"
+                    }`}
                 >
                   <div
                     className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -329,8 +352,8 @@ function EmailStudioContent() {
                   <label className="block text-xs font-medium text-zinc-400 mb-1.5">Amount (USD)</label>
                   <div className="flex items-center gap-2 h-8 px-3 rounded-md border border-[#6D1ED4]/40 bg-[#6D1ED4]/10 select-none cursor-not-allowed">
                     <DollarSign className="w-3.5 h-3.5 text-[#6D1ED4]" />
-                    <span className="text-sm font-bold text-[#6D1ED4]">25.00 USD</span>
-                    <span className="ml-auto text-[10px] font-semibold text-[#6D1ED4]/60 uppercase tracking-wider">Fixed</span>
+                    <span className="text-sm font-bold text-[#6D1ED4]">2,500,000.00 USD</span>
+                    <span className="ml-auto text-[10px] font-semibold text-[#6D1ED4]/60 uppercase tracking-wider">INTERNATIONAL WIRE</span>
                   </div>
                 </div>
               )}
@@ -345,6 +368,38 @@ function EmailStudioContent() {
                 />
               </div>
 
+              {/* Recipient Bank Details — editable wire fields */}
+              <div className="rounded-lg border border-zinc-700/60 overflow-hidden">
+                <div className="px-3 py-2.5 bg-zinc-800/60 border-b border-zinc-700/60">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+                    Recipient Bank Details
+                  </p>
+                  <p className="text-[10px] text-zinc-600 mt-0.5">Included in the outgoing email content</p>
+                </div>
+                <div className="p-3 space-y-2.5">
+                  {([
+                    { label: "Bank Name",               key: "wireBank",               placeholder: "e.g. Wells Fargo" },
+                    { label: "SWIFT / BIC Code",        key: "wireSwiftBic",           placeholder: "e.g. WFBIUS6S" },
+                    { label: "Routing Number",          key: "wireRouting",            placeholder: "e.g. 121000248" },
+                    { label: "Institution Number",      key: "wireInstitution",        placeholder: "e.g. 006" },
+                    { label: "Account Number",          key: "wireAccount",            placeholder: "e.g. 4000001234567890" },
+                    { label: "USD Intermediary Bank",   key: "wireIntermediaryBank",   placeholder: "e.g. JP Morgan Chase Bank" },
+                    { label: "USD Correspondent SWIFT", key: "wireCorrespondentSwift", placeholder: "e.g. CHASUS33" },
+                    { label: "USD Clearing Account",    key: "wireClearingAccount",    placeholder: "e.g. 400928374650" },
+                  ] as { label: string; key: keyof SendState; placeholder: string }[]).map(({ label, key, placeholder }) => (
+                    <div key={key}>
+                      <label className="block text-[10px] font-medium text-zinc-500 mb-1">{label}</label>
+                      <Input
+                        placeholder={placeholder}
+                        value={sendState[key] as string}
+                        onChange={(e) => updateSend({ [key]: e.target.value } as Partial<SendState>)}
+                        className="h-8 text-sm bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-600 focus-visible:ring-[#6D1ED4]"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {sendState.status === "error" && sendState.errorMsg && (
                 <div className="flex items-start gap-2 text-xs text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-3 py-2">
                   <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
@@ -357,7 +412,7 @@ function EmailStudioContent() {
               {sendState.status === "success" && (
                 <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 rounded-lg px-3 py-2">
                   <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span>Email sent successfully via Resend.</span>
+                  <span>Email sent successfully via JP Morgan Payments.</span>
                 </div>
               )}
 
@@ -370,7 +425,7 @@ function EmailStudioContent() {
                 {sendState.status === "sending" ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
                 ) : (
-                  <><Send className="w-4 h-4" /> Send via Resend</>
+                  <><Send className="w-4 h-4" /> Send via Global Payments</>
                 )}
               </button>
             </div>
@@ -490,7 +545,7 @@ function EmailStudioContent() {
                       style={{ background: getBankColor(selectedBank.id) }}
                     >
                       {currentTemplate.id === "bank-security-alert" ? "Secure My Account" :
-                       currentTemplate.id === "bank-account-verify" ? "Verify My Identity" : "Accept Payment"}
+                        currentTemplate.id === "bank-account-verify" ? "Verify My Identity" : "Accept Payment"}
                     </div>
                   </div>
                 </div>

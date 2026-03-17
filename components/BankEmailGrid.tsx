@@ -120,7 +120,7 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
             recipientName: state.recipientName,
             bankId: bank.id,
             bankName: bank.name,
-            bankLogo: bank.logo ? `${window.location.origin}${bank.logo}` : undefined,
+            bankLogo: bank.logo || undefined,
             bankColor,
             template: meta.templateParam,
             amount: state.amount,
