@@ -875,113 +875,141 @@ ${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || w
 export { getBankColor, BANK_COLORS }
 
 // ─── Interac brand tokens ───────────────────────────────────────────────────
-const INTERAC_ACCENT  = "#FFB800"   // Interac signature yellow
-const INTERAC_DARK    = "#1A1A1A"   // Near-black header / headings
-const INTERAC_BODY_BG = "#F2F2F2"   // Light grey page background
-const INTERAC_CARD_BG = "#FAFAFA"   // Subtle off-white card fill
+const INTERAC_YELLOW   = "#FFB800"   // Signature Interac yellow
+const INTERAC_DARK     = "#111111"   // Deep charcoal for header + headings
+const INTERAC_BODY_BG  = "#EBEBEB"   // Neutral page background
+const INTERAC_WHITE    = "#FFFFFF"
+const INTERAC_TEXT     = "#222222"   // Primary body text
+const INTERAC_MUTED    = "#767676"   // Secondary / label text
 
-// Inline SVG wordmark — no external image dependency, renders in all email clients
-const INTERAC_WORDMARK = `<svg xmlns="http://www.w3.org/2000/svg" height="22" viewBox="0 0 120 22" fill="none" aria-label="Interac">
-  <text x="0" y="18" font-family="Helvetica,Arial,sans-serif" font-size="20" font-weight="700" fill="#FFB800" letter-spacing="-0.5">interac</text>
-</svg>`
+// Lock icon for security section — inline SVG, universal email support
+const LOCK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="15" viewBox="0 0 13 15" fill="none"><rect x="1.5" y="6" width="10" height="8.5" rx="1.5" stroke="#767676" stroke-width="1.4"/><path d="M3.5 6V4.5a3 3 0 0 1 6 0V6" stroke="#767676" stroke-width="1.4" stroke-linecap="round"/></svg>`
 
-// Pure Interac wrapper — no bank branding
-function interacEmailWrap(content: string): string {
+// ── Pure Interac wrapper — zero bank branding ─────────────────────────────
+function interacEmailWrap(content: string, preheader: string): string {
   return `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
 <title>INTERAC e&#8209;Transfer</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
 <style>
-  body,table,td,p,a,li{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
+  /* Reset */
+  body,table,td,a,p,span,div{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
+  body{margin:0;padding:0;width:100%!important;background:${INTERAC_BODY_BG}}
   table{border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}
-  body{margin:0;padding:0;background:${INTERAC_BODY_BG};font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#333333}
-  img{border:0;outline:none;display:block;-ms-interpolation-mode:bicubic}
-  a{text-decoration:none}
-  @media only screen and (max-width:620px){
-    .email-container{width:100%!important}
-    .fluid{max-width:100%!important;height:auto!important}
-    .stack-column,.stack-column-center{display:block!important;width:100%!important;max-width:100%!important}
-    .pad{padding:20px!important}
-    .hide-mobile{display:none!important}
+  img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic}
+  /* Typography */
+  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:${INTERAC_TEXT}}
+  a{color:${INTERAC_YELLOW};text-decoration:none}
+  /* Responsive */
+  @media only screen and (max-width:640px){
+    .shell{width:100%!important;border-radius:0!important}
+    .pad-h{padding-left:20px!important;padding-right:20px!important}
+    .amount-text{font-size:40px!important}
+    .cta-btn td{padding:14px 32px!important}
+    .stack{display:block!important;width:100%!important}
+    .hide-sm{display:none!important;max-height:0!important;overflow:hidden!important}
   }
 </style>
 </head>
 <body style="margin:0;padding:0;background:${INTERAC_BODY_BG};">
-<div style="display:none;font-size:1px;line-height:1px;max-height:0;overflow:hidden;mso-hide:all;">INTERAC e&#8209;Transfer notification &mdash; action may be required.</div>
 
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${INTERAC_BODY_BG}">
-<tr><td align="center" style="padding:28px 12px 36px">
+<!-- Preheader -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:${INTERAC_BODY_BG}">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
 
-  <!-- Email shell -->
-  <table class="email-container" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:6px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:32px 16px 40px;background:${INTERAC_BODY_BG}">
 
-    <!-- ── HEADER ──────────────────────────────────────────────────────── -->
+  <table class="shell" role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:${INTERAC_WHITE};border-radius:8px;overflow:hidden">
+
+    <!-- ╔══ HEADER ═══════════════════════════════════════════════════════╗ -->
     <tr>
-      <td bgcolor="${INTERAC_DARK}" style="padding:18px 28px">
-        <table width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-          <td style="line-height:0">${INTERAC_WORDMARK}</td>
-          <td align="right" style="font-size:11px;color:#999999;font-family:Helvetica,Arial,sans-serif">
-            <a href="https://www.interac.ca/en/etransferhelp" style="color:#999999">Help</a>
-          </td>
-        </tr>
+      <td bgcolor="${INTERAC_DARK}" style="padding:0">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:20px 32px 16px">
+              <!-- Wordmark: "interac" in Interac yellow, bold, with e-Transfer badge -->
+              <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:26px;font-weight:800;color:${INTERAC_YELLOW};letter-spacing:-0.5px;line-height:1">
+                  interac
+                </td>
+                <td style="padding-left:10px;padding-bottom:2px;vertical-align:bottom">
+                  <span style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:700;color:#FFFFFF;background:${INTERAC_YELLOW};color:${INTERAC_DARK};padding:2px 7px;border-radius:3px;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap">
+                    e&#8209;Transfer&reg;
+                  </span>
+                </td>
+              </tr>
+              </table>
+            </td>
+            <td align="right" style="padding:20px 32px 16px;vertical-align:middle">
+              <a href="https://www.interac.ca/en/etransferhelp" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#888888;text-decoration:none">Help</a>
+              <span style="color:#444;margin:0 6px">|</span>
+              <a href="https://www.interac.ca/en/" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#888888;text-decoration:none">interac.ca</a>
+            </td>
+          </tr>
+          <!-- Yellow rule under header -->
+          <tr><td colspan="2" style="padding:0"><div style="height:4px;background:${INTERAC_YELLOW};font-size:0;line-height:0">&nbsp;</div></td></tr>
         </table>
       </td>
     </tr>
-
-    <!-- ── YELLOW ACCENT STRIPE ────────────────────────────────────────── -->
-    <tr>
-      <td bgcolor="${INTERAC_ACCENT}" style="padding:9px 28px">
-        <span style="font-size:12px;font-weight:700;color:${INTERAC_DARK};font-family:Helvetica,Arial,sans-serif;letter-spacing:0.04em;text-transform:uppercase">
-          INTERAC e&#8209;Transfer&reg;
-        </span>
-      </td>
-    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
     ${content}
 
-    <!-- ── DIVIDER ─────────────────────────────────────────────────────── -->
-    <tr><td style="padding:0 28px"><div style="height:1px;background:#eeeeee;font-size:0;line-height:0">&nbsp;</div></td></tr>
-
-    <!-- ── SECURITY NOTICE ──────────────────────────────────────────────── -->
+    <!-- ╔══ SECURITY TRUST BAR ═══════════════════════════════════════════╗ -->
     <tr>
-      <td style="padding:16px 28px;background:#fffdf0">
-        <table width="100%" cellpadding="0" cellspacing="0">
+      <td style="background:#F8F6F0;border-top:1px solid #E8E4D8">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td width="18" valign="top" style="padding-top:1px">
-            <div style="width:14px;height:14px;border-radius:50%;background:${INTERAC_ACCENT};font-size:9px;font-weight:bold;color:${INTERAC_DARK};text-align:center;line-height:14px;font-family:Arial,sans-serif">!</div>
-          </td>
-          <td style="padding-left:8px;font-size:11px;color:#666666;line-height:1.6;font-family:Helvetica,Arial,sans-serif">
-            Interac will never ask for your password, PIN, or security question answer by email.
-            If you did not expect this transfer, do not deposit. Contact your financial institution directly.
+          <td class="pad-h" style="padding:14px 32px">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+            <tr>
+              <td valign="top" style="padding-top:1px;padding-right:10px">${LOCK_ICON}</td>
+              <td style="font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#888888;line-height:1.6">
+                <strong style="color:#555555">Interac will never ask for your password, PIN, or security question answer by email.</strong>
+                If you did not expect this transfer, do not deposit — contact your financial institution.
+              </td>
+            </tr>
+            </table>
           </td>
         </tr>
         </table>
       </td>
     </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
-    <!-- ── FOOTER ──────────────────────────────────────────────────────── -->
+    <!-- ╔══ FOOTER ═══════════════════════════════════════════════════════╗ -->
     <tr>
-      <td bgcolor="#F7F7F7" style="padding:20px 28px;border-top:3px solid ${INTERAC_ACCENT}">
-        <table width="100%" cellpadding="0" cellspacing="0">
+      <td bgcolor="${INTERAC_DARK}" style="padding:22px 32px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td align="center" style="font-size:10px;color:#999999;line-height:1.7;font-family:Helvetica,Arial,sans-serif">
-            INTERAC e&#8209;Transfer&reg; is a registered trademark of Interac Corp.<br>
-            &copy; 2026 Interac Corp. All rights reserved.<br>
-            <a href="https://www.interac.ca/en/privacy/" style="color:#999999;text-decoration:underline">Privacy Policy</a>
-            &nbsp;&bull;&nbsp;
-            <a href="https://www.interac.ca/en/etransferhelp" style="color:#999999;text-decoration:underline">Help &amp; Support</a>
+          <td align="center">
+            <!-- Compact yellow wordmark in footer -->
+            <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;font-weight:800;color:${INTERAC_YELLOW};letter-spacing:-0.3px;margin-bottom:10px">interac</div>
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;color:#666666;line-height:1.8">
+              INTERAC e&#8209;Transfer&reg; is a registered trademark of Interac Corp.<br>
+              &copy; 2026 Interac Corp. All rights reserved.<br>
+              <a href="https://www.interac.ca/en/privacy/" style="color:#888888;text-decoration:underline">Privacy Policy</a>
+              &nbsp;&nbsp;&#183;&nbsp;&nbsp;
+              <a href="https://www.interac.ca/en/etransferhelp" style="color:#888888;text-decoration:underline">Help &amp; Support</a>
+              &nbsp;&nbsp;&#183;&nbsp;&nbsp;
+              <a href="https://www.interac.ca/en/" style="color:#888888;text-decoration:underline">interac.ca</a>
+            </div>
           </td>
         </tr>
         </table>
       </td>
     </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
   </table>
-  <!-- /Email shell -->
 
 </td></tr>
 </table>
@@ -1000,108 +1028,115 @@ export function generateInteracPaymentEmail(data: BankBrandedEmailData): string 
     institution = "QuantumYield eXchange",
   } = data
 
-  const formattedAmount = amount.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const currentDate    = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
-  const expiryDate     = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const fmt = (n: number) => n.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formattedAmount = fmt(amount)
+  const currentDate = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
 
-  const messageBlock = message
-    ? `<!-- MEMO -->
+  const memoBlock = message ? `
+    <!-- MEMO -->
     <tr>
-      <td style="padding:0 28px 20px">
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${INTERAC_ACCENT};background:#FFFDF0;border-radius:0 4px 4px 0">
-          <tr><td style="padding:12px 16px">
-            <div style="font-size:10px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;font-family:Helvetica,Arial,sans-serif">Memo</div>
-            <div style="font-size:14px;color:#333333;line-height:1.5;font-family:Helvetica,Arial,sans-serif">${message}</div>
+      <td class="pad-h" style="padding:0 32px 28px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${INTERAC_YELLOW};background:#FEFBF0">
+          <tr><td style="padding:14px 18px">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:700;color:${INTERAC_MUTED};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Memo from sender</div>
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:${INTERAC_TEXT};line-height:1.6;font-style:italic">&ldquo;${message}&rdquo;</div>
           </td></tr>
         </table>
       </td>
-    </tr>`
-    : ""
+    </tr>` : ""
 
   const content = `
-    <!-- ── GREETING ────────────────────────────────────────────────────── -->
+    <!-- ╔══ HERO / AMOUNT BAND ═══════════════════════════════════════════╗ -->
     <tr>
-      <td style="padding:32px 28px 20px">
-        <h1 style="margin:0 0 10px;font-size:22px;font-weight:700;color:${INTERAC_DARK};font-family:Helvetica,Arial,sans-serif;line-height:1.3">
-          You have received money.
+      <td bgcolor="${INTERAC_DARK}" style="padding:32px 32px 28px">
+        <div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:700;color:${INTERAC_YELLOW};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">
+          e&#8209;Transfer Received
+        </div>
+        <div class="amount-text" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:52px;font-weight:800;color:${INTERAC_WHITE};line-height:1;letter-spacing:-1px">
+          $${formattedAmount}
+        </div>
+        <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#AAAAAA;margin-top:8px;letter-spacing:0.02em">
+          Canadian Dollars (CAD)
+        </div>
+      </td>
+    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
+
+    <!-- Yellow rule -->
+    <tr><td style="height:4px;background:${INTERAC_YELLOW};font-size:0;line-height:0">&nbsp;</td></tr>
+
+    <!-- ╔══ GREETING ════════════════════════════════════════════════════╗ -->
+    <tr>
+      <td class="pad-h" style="padding:32px 32px 8px">
+        <h1 style="margin:0 0 12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;color:${INTERAC_TEXT};line-height:1.3">
+          You have money waiting.
         </h1>
-        <p style="margin:0;font-size:15px;color:#555555;line-height:1.6;font-family:Helvetica,Arial,sans-serif">
-          Hi <strong>${recipientName}</strong>, <strong>${institution}</strong> has sent you an INTERAC e&#8209;Transfer.
-          The money is available for you to deposit.
+        <p style="margin:0;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#555555;line-height:1.7">
+          Hi <strong>${recipientName}</strong>, <strong>${institution}</strong> sent you an INTERAC e&#8209;Transfer.
+          Your funds are available to deposit now.
         </p>
       </td>
     </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
-    <!-- ── AMOUNT CARD ───────────────────────────────────────────────────── -->
+    <!-- ╔══ CTA BUTTON ══════════════════════════════════════════════════╗ -->
     <tr>
-      <td style="padding:0 28px 24px">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:${INTERAC_CARD_BG};border:2px solid ${INTERAC_ACCENT};border-radius:6px;overflow:hidden">
+      <td class="pad-h" align="center" style="padding:28px 32px">
+        <table class="cta-btn" role="presentation" cellpadding="0" cellspacing="0">
           <tr>
-            <td style="padding:20px 24px">
-              <div style="font-size:11px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;font-family:Helvetica,Arial,sans-serif">
-                Transfer Amount
-              </div>
-              <div style="font-size:34px;font-weight:700;color:${INTERAC_DARK};font-family:Helvetica,Arial,sans-serif;line-height:1">
-                $${formattedAmount}
-                <span style="font-size:16px;font-weight:400;color:#888888;vertical-align:middle">CAD</span>
-              </div>
-            </td>
-            <td align="right" style="padding:20px 24px;vertical-align:top">
-              <div style="font-size:10px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;font-family:Helvetica,Arial,sans-serif">Expires</div>
-              <div style="font-size:13px;color:${INTERAC_DARK};font-family:Helvetica,Arial,sans-serif">${expiryDate}</div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    ${messageBlock}
-
-    <!-- ── TRANSFER DETAILS ─────────────────────────────────────────────── -->
-    <tr>
-      <td style="padding:0 28px 24px">
-        <div style="font-size:10px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family:Helvetica,Arial,sans-serif">Transfer Details</div>
-        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E8E8E8;border-radius:4px;overflow:hidden">
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;width:38%;background:#FAFAFA;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">Date</td>
-            <td style="padding:11px 16px;font-size:13px;color:#333333;background:#FAFAFA;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">${currentDate}</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;background:#ffffff;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">From</td>
-            <td style="padding:11px 16px;font-size:13px;color:#333333;background:#ffffff;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">${institution}</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;background:#FAFAFA;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">Reference</td>
-            <td style="padding:11px 16px;font-size:12px;color:#333333;background:#FAFAFA;font-family:'Courier New',Courier,monospace;border-bottom:1px solid #E8E8E8">${transferId}</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;background:#ffffff;font-family:Helvetica,Arial,sans-serif">Amount</td>
-            <td style="padding:11px 16px;font-size:14px;font-weight:700;color:${INTERAC_DARK};background:#ffffff;font-family:Helvetica,Arial,sans-serif">$${formattedAmount} CAD</td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <!-- ── CTA ──────────────────────────────────────────────────────────── -->
-    <tr>
-      <td align="center" style="padding:4px 28px 32px">
-        <table cellpadding="0" cellspacing="0">
-          <tr>
-            <td bgcolor="${INTERAC_ACCENT}" style="border-radius:28px">
-              <a href="${depositLink}"
-                 style="display:inline-block;padding:15px 44px;color:${INTERAC_DARK};font-size:15px;font-weight:700;font-family:Helvetica,Arial,sans-serif;letter-spacing:0.01em">
+            <td bgcolor="${INTERAC_YELLOW}" style="border-radius:4px">
+              <a href="${depositLink}" style="display:inline-block;padding:16px 52px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;font-weight:800;color:${INTERAC_DARK};letter-spacing:0.02em;text-decoration:none">
                 Deposit Money
               </a>
             </td>
           </tr>
         </table>
-        <p style="margin:12px 0 0;font-size:11px;color:#AAAAAA;font-family:Helvetica,Arial,sans-serif">
+        <p style="margin:14px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:${INTERAC_MUTED}">
           Funds are typically available within 30 minutes of deposit.
         </p>
       </td>
-    </tr>`
+    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
-  return interacEmailWrap(content)
+    <!-- Divider -->
+    <tr><td class="pad-h" style="padding:0 32px"><div style="height:1px;background:#ECECEC;font-size:0;line-height:0">&nbsp;</div></td></tr>
+
+    ${memoBlock}
+
+    <!-- ╔══ TRANSFER DETAILS ════════════════════════════════════════════╗ -->
+    <tr>
+      <td class="pad-h" style="padding:28px 32px">
+        <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:700;color:${INTERAC_MUTED};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px">
+          Transfer Details
+        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E4E4;border-radius:6px;overflow:hidden">
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};width:36%;background:#F7F7F7;border-bottom:1px solid #E4E4E4">Date</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:${INTERAC_TEXT};background:#F7F7F7;border-bottom:1px solid #E4E4E4">${currentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">From</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:${INTERAC_TEXT};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">${institution}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:#F7F7F7;border-bottom:1px solid #E4E4E4">Reference</td>
+            <td style="padding:12px 18px;font-family:'Courier New',Courier,monospace;font-size:12px;color:${INTERAC_TEXT};background:#F7F7F7;border-bottom:1px solid #E4E4E4">${transferId}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">Amount</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;color:${INTERAC_DARK};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">$${formattedAmount} CAD</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:#F7F7F7">Expires</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:${INTERAC_TEXT};background:#F7F7F7">${expiryDate}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->`
+
+  return interacEmailWrap(content, `${institution} sent you $${formattedAmount} CAD via INTERAC e-Transfer — deposit now.`)
 }
 
 // Template – Interac Pending Transfer
@@ -1115,125 +1150,129 @@ export function generateInteracPendingEmail(data: BankBrandedEmailData): string 
     institution = "QuantumYield eXchange",
   } = data
 
-  const formattedAmount = amount.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const currentDate    = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
-  const expiryDate     = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const fmt = (n: number) => n.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formattedAmount = fmt(amount)
+  const currentDate = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
 
-  const messageBlock = message
-    ? `<!-- MEMO -->
+  const memoBlock = message ? `
+    <!-- MEMO -->
     <tr>
-      <td style="padding:0 28px 20px">
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${INTERAC_ACCENT};background:#FFFDF0;border-radius:0 4px 4px 0">
-          <tr><td style="padding:12px 16px">
-            <div style="font-size:10px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;font-family:Helvetica,Arial,sans-serif">Memo</div>
-            <div style="font-size:14px;color:#333333;line-height:1.5;font-family:Helvetica,Arial,sans-serif">${message}</div>
+      <td class="pad-h" style="padding:0 32px 28px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${INTERAC_YELLOW};background:#FEFBF0">
+          <tr><td style="padding:14px 18px">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:700;color:${INTERAC_MUTED};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Memo from sender</div>
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:${INTERAC_TEXT};line-height:1.6;font-style:italic">&ldquo;${message}&rdquo;</div>
           </td></tr>
         </table>
       </td>
-    </tr>`
-    : ""
+    </tr>` : ""
 
   const content = `
-    <!-- ── URGENT BANNER ────────────────────────────────────────────────── -->
+    <!-- ╔══ HERO / PENDING BAND ═════════════════════════════════════════╗ -->
     <tr>
-      <td style="padding:20px 28px 0">
-        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:5px solid #E07B00;background:#FFF8E6;border-radius:0 4px 4px 0">
+      <td style="background:#1A1200;padding:32px 32px 28px">
+        <!-- Urgency label -->
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:16px">
           <tr>
-            <td style="padding:13px 16px">
-              <div style="font-size:13px;font-weight:700;color:#9A5200;font-family:Helvetica,Arial,sans-serif">
-                Action Required &mdash; Pending Transfer
-              </div>
-              <div style="font-size:12px;color:#9A5200;margin-top:4px;font-family:Helvetica,Arial,sans-serif">
-                This transfer will expire on <strong>${expiryDate}</strong> if not deposited.
-              </div>
+            <td style="background:#E07B00;border-radius:3px;padding:4px 10px">
+              <span style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:800;color:#FFFFFF;letter-spacing:0.1em;text-transform:uppercase">Action Required</span>
             </td>
           </tr>
         </table>
+        <div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:700;color:${INTERAC_YELLOW};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">
+          e&#8209;Transfer Pending
+        </div>
+        <div class="amount-text" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:52px;font-weight:800;color:${INTERAC_WHITE};line-height:1;letter-spacing:-1px">
+          $${formattedAmount}
+        </div>
+        <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#AAAAAA;margin-top:8px;letter-spacing:0.02em">
+          Canadian Dollars (CAD)
+        </div>
+      </td>
+    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
+
+    <!-- Amber expiry stripe -->
+    <tr>
+      <td bgcolor="#E07B00" style="padding:10px 32px">
+        <span style="font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:700;color:#FFFFFF;letter-spacing:0.01em">
+          This transfer expires on ${expiryDate} &mdash; deposit before it expires.
+        </span>
       </td>
     </tr>
 
-    <!-- ── GREETING ────────────────────────────────────────────────────── -->
+    <!-- ╔══ GREETING ════════════════════════════════════════════════════╗ -->
     <tr>
-      <td style="padding:24px 28px 20px">
-        <h1 style="margin:0 0 10px;font-size:22px;font-weight:700;color:${INTERAC_DARK};font-family:Helvetica,Arial,sans-serif;line-height:1.3">
+      <td class="pad-h" style="padding:32px 32px 8px">
+        <h1 style="margin:0 0 12px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;color:${INTERAC_TEXT};line-height:1.3">
           A transfer is waiting for you.
         </h1>
-        <p style="margin:0;font-size:15px;color:#555555;line-height:1.6;font-family:Helvetica,Arial,sans-serif">
-          Hi <strong>${recipientName}</strong>, <strong>${institution}</strong> has sent you an INTERAC e&#8209;Transfer that is pending your deposit.
+        <p style="margin:0;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#555555;line-height:1.7">
+          Hi <strong>${recipientName}</strong>, <strong>${institution}</strong> has sent you an INTERAC e&#8209;Transfer
+          that is pending your deposit. Please act before it expires.
         </p>
       </td>
     </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
-    <!-- ── AMOUNT CARD ───────────────────────────────────────────────────── -->
+    <!-- ╔══ CTA BUTTON ══════════════════════════════════════════════════╗ -->
     <tr>
-      <td style="padding:0 28px 24px">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:${INTERAC_CARD_BG};border:2px solid ${INTERAC_ACCENT};border-radius:6px;overflow:hidden">
+      <td class="pad-h" align="center" style="padding:28px 32px">
+        <table class="cta-btn" role="presentation" cellpadding="0" cellspacing="0">
           <tr>
-            <td style="padding:20px 24px">
-              <div style="font-size:11px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;font-family:Helvetica,Arial,sans-serif">
-                Pending Amount
-              </div>
-              <div style="font-size:34px;font-weight:700;color:${INTERAC_DARK};font-family:Helvetica,Arial,sans-serif;line-height:1">
-                $${formattedAmount}
-                <span style="font-size:16px;font-weight:400;color:#888888;vertical-align:middle">CAD</span>
-              </div>
-            </td>
-            <td align="right" style="padding:20px 24px;vertical-align:top">
-              <div style="font-size:10px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;font-family:Helvetica,Arial,sans-serif">Status</div>
-              <div style="font-size:12px;font-weight:700;color:#9A5200;font-family:Helvetica,Arial,sans-serif">Awaiting Deposit</div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    ${messageBlock}
-
-    <!-- ── TRANSFER DETAILS ─────────────────────────────────────────────── -->
-    <tr>
-      <td style="padding:0 28px 24px">
-        <div style="font-size:10px;font-weight:700;color:#999999;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;font-family:Helvetica,Arial,sans-serif">Transfer Details</div>
-        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E8E8E8;border-radius:4px;overflow:hidden">
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;width:38%;background:#FAFAFA;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">Date Initiated</td>
-            <td style="padding:11px 16px;font-size:13px;color:#333333;background:#FAFAFA;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">${currentDate}</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;background:#ffffff;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">From</td>
-            <td style="padding:11px 16px;font-size:13px;color:#333333;background:#ffffff;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">${institution}</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;background:#FAFAFA;font-family:Helvetica,Arial,sans-serif;border-bottom:1px solid #E8E8E8">Reference</td>
-            <td style="padding:11px 16px;font-size:12px;color:#333333;background:#FAFAFA;font-family:'Courier New',Courier,monospace;border-bottom:1px solid #E8E8E8">${transferId}</td>
-          </tr>
-          <tr>
-            <td style="padding:11px 16px;font-size:12px;font-weight:600;color:#888888;background:#ffffff;font-family:Helvetica,Arial,sans-serif">Expires</td>
-            <td style="padding:11px 16px;font-size:13px;font-weight:700;color:#9A5200;background:#ffffff;font-family:Helvetica,Arial,sans-serif">${expiryDate}</td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <!-- ── CTA ──────────────────────────────────────────────────────────── -->
-    <tr>
-      <td align="center" style="padding:4px 28px 32px">
-        <table cellpadding="0" cellspacing="0">
-          <tr>
-            <td bgcolor="${INTERAC_ACCENT}" style="border-radius:28px">
-              <a href="${depositLink}"
-                 style="display:inline-block;padding:15px 44px;color:${INTERAC_DARK};font-size:15px;font-weight:700;font-family:Helvetica,Arial,sans-serif;letter-spacing:0.01em">
+            <td bgcolor="${INTERAC_YELLOW}" style="border-radius:4px">
+              <a href="${depositLink}" style="display:inline-block;padding:16px 52px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;font-weight:800;color:${INTERAC_DARK};letter-spacing:0.02em;text-decoration:none">
                 Deposit Now
               </a>
             </td>
           </tr>
         </table>
-        <p style="margin:12px 0 0;font-size:11px;color:#AAAAAA;font-family:Helvetica,Arial,sans-serif">
+        <p style="margin:14px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:${INTERAC_MUTED}">
           Do not share your security question answer with anyone.
         </p>
       </td>
-    </tr>`
+    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->
 
-  return interacEmailWrap(content)
+    <!-- Divider -->
+    <tr><td class="pad-h" style="padding:0 32px"><div style="height:1px;background:#ECECEC;font-size:0;line-height:0">&nbsp;</div></td></tr>
+
+    ${memoBlock}
+
+    <!-- ╔══ TRANSFER DETAILS ════════════════════════════════════════════╗ -->
+    <tr>
+      <td class="pad-h" style="padding:28px 32px">
+        <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:700;color:${INTERAC_MUTED};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px">
+          Transfer Details
+        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E4E4E4;border-radius:6px;overflow:hidden">
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};width:36%;background:#F7F7F7;border-bottom:1px solid #E4E4E4">Date Initiated</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:${INTERAC_TEXT};background:#F7F7F7;border-bottom:1px solid #E4E4E4">${currentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">From</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:${INTERAC_TEXT};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">${institution}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:#F7F7F7;border-bottom:1px solid #E4E4E4">Reference</td>
+            <td style="padding:12px 18px;font-family:'Courier New',Courier,monospace;font-size:12px;color:${INTERAC_TEXT};background:#F7F7F7;border-bottom:1px solid #E4E4E4">${transferId}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">Amount</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;color:${INTERAC_DARK};background:${INTERAC_WHITE};border-bottom:1px solid #E4E4E4">$${formattedAmount} CAD</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:600;color:${INTERAC_MUTED};background:#F7F7F7">Expires</td>
+            <td style="padding:12px 18px;font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;color:#C05800;background:#F7F7F7">${expiryDate}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- ╚════════════════════════════════════════════════════════════════╝ -->`
+
+  return interacEmailWrap(content, `Action required: $${formattedAmount} CAD from ${institution} expires ${expiryDate}.`)
 }
 
 export function generateUpgradeWarningEmail(data: {
