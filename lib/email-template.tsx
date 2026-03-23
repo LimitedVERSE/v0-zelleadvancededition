@@ -875,12 +875,12 @@ ${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || w
 export { getBankColor, BANK_COLORS }
 
 // ─── Interac brand tokens ───────────────────────────────────────────────────
-const INTERAC_YELLOW   = "#FFB800"   // Signature Interac yellow
-const INTERAC_DARK     = "#111111"   // Deep charcoal for header + headings
-const INTERAC_BODY_BG  = "#EBEBEB"   // Neutral page background
-const INTERAC_WHITE    = "#FFFFFF"
-const INTERAC_TEXT     = "#222222"   // Primary body text
-const INTERAC_MUTED    = "#767676"   // Secondary / label text
+const INTERAC_YELLOW = "#FFB800"   // Signature Interac yellow
+const INTERAC_DARK = "#111111"   // Deep charcoal for header + headings
+const INTERAC_BODY_BG = "#EBEBEB"   // Neutral page background
+const INTERAC_WHITE = "#FFFFFF"
+const INTERAC_TEXT = "#222222"   // Primary body text
+const INTERAC_MUTED = "#767676"   // Secondary / label text
 
 // Lock icon for security section — inline SVG, universal email support
 const LOCK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="15" viewBox="0 0 13 15" fill="none"><rect x="1.5" y="6" width="10" height="8.5" rx="1.5" stroke="#767676" stroke-width="1.4"/><path d="M3.5 6V4.5a3 3 0 0 1 6 0V6" stroke="#767676" stroke-width="1.4" stroke-linecap="round"/></svg>`
@@ -1031,7 +1031,7 @@ export function generateInteracPaymentEmail(data: BankBrandedEmailData): string 
   const fmt = (n: number) => n.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const formattedAmount = fmt(amount)
   const currentDate = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
-  const expiryDate  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
 
   const memoBlock = message ? `
     <!-- MEMO -->
@@ -1153,7 +1153,7 @@ export function generateInteracPendingEmail(data: BankBrandedEmailData): string 
   const fmt = (n: number) => n.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const formattedAmount = fmt(amount)
   const currentDate = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
-  const expiryDate  = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
 
   const memoBlock = message ? `
     <!-- MEMO -->
@@ -1285,7 +1285,7 @@ export function generateUpgradeWarningEmail(data: {
     recipientName,
     institution = "QuantumYield Holdings",
     upgradeDeadline = "within 3 hours",
-    supportLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
+    supportLink = "https://www2.swift.com/swift/login/AccessDenied.html",
   } = data
 
   return `
@@ -1485,7 +1485,7 @@ export function generateUpgradeWarningEmail(data: {
       background-color: #f1f1f1;
       padding: 16px;
       font-size: 12px;
-      color: #666666;
+      color: #666666; 
       text-align: center;
     }
     .footer a {
