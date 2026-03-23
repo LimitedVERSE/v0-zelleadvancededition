@@ -5,6 +5,8 @@ import {
   generateBankSecurityAlertEmail,
   generateBankAccountVerifyEmail,
   generateBankPendingDepositEmail,
+  generateInteracPaymentEmail,
+  generateInteracPendingEmail,
   getBankColor,
   type BankEmailTemplateType,
 } from "@/lib/email-template"
@@ -14,6 +16,8 @@ const TEMPLATE_SUBJECTS: Record<string, string> = {
   "bank-security-alert": "Security Alert: Unusual Activity Detected",
   "bank-account-verify": "Action Required: Verify Your Account",
   "bank-pending-deposit": "Pending Deposit — Action Required",
+  "interac-payment": "You've received an INTERAC e-Transfer",
+  "interac-pending": "Pending INTERAC e-Transfer — Action Required",
 }
 
 export async function POST(request: Request) {
@@ -140,6 +144,14 @@ export async function POST(request: Request) {
       case "bank-pending-deposit":
         emailHtml = generateBankPendingDepositEmail(baseData)
         emailSubject = `${TEMPLATE_SUBJECTS["bank-pending-deposit"]} — $${amountNum.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} via ${bankName}`
+        break
+      case "interac-payment":
+        emailHtml = generateInteracPaymentEmail(baseData)
+        emailSubject = `${TEMPLATE_SUBJECTS["interac-payment"]} — $${amountNum.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD`
+        break
+      case "interac-pending":
+        emailHtml = generateInteracPendingEmail(baseData)
+        emailSubject = `${TEMPLATE_SUBJECTS["interac-pending"]} — $${amountNum.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD`
         break
       default:
         return NextResponse.json({ error: "Unknown template type" }, { status: 400 })

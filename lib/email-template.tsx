@@ -424,6 +424,8 @@ export type BankEmailTemplateType =
   | "bank-security-alert"
   | "bank-account-verify"
   | "bank-pending-deposit"
+  | "interac-payment"
+  | "interac-pending"
 
 export interface BankBrandedEmailData {
   recipientName: string
@@ -871,6 +873,292 @@ ${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || w
 
 // Utility: get bank color by ID (exported for use in UI)
 export { getBankColor, BANK_COLORS }
+
+const INTERAC_LOGO_URL = "http://etransfer-notification.interac.ca/images/own/etransfer_top_banner.png"
+const INTERAC_ACCENT = "#FFB800"
+const INTERAC_DARK = "#222222"
+
+function interacEmailWrap(content: string, bankName: string, bankLogo: string | undefined): string {
+  const logoBlock = bankLogo
+    ? `<img src="${bankLogo}" alt="${bankName}" style="height:36px;max-width:140px;object-fit:contain;display:block;">`
+    : `<span style="font-size:18px;font-weight:bold;color:#fff;">${bankName}</span>`
+
+  return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>INTERAC e-Transfer Notification</title>
+<style>
+body{margin:0;padding:0;background:#EAECED;font-family:'Helvetica','Arial',sans-serif;font-size:14px;line-height:19px;color:#222222}
+table{border-spacing:0;border-collapse:collapse}
+img{border:0;outline:none;display:block;-ms-interpolation-mode:bicubic}
+a{text-decoration:none;color:#666666}
+@media only screen and (max-width:600px){.container{width:100%!important}.text-pad{padding-left:16px!important;padding-right:16px!important}}
+</style>
+</head>
+<body style="background:#EAECED;margin:0;padding:0;">
+<table width="100%" bgcolor="#EAECED" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:24px 16px">
+
+<table class="container" width="580" cellpadding="0" cellspacing="0" bgcolor="#ffffff">
+
+<!-- HEADER -->
+<tr bgcolor="#222222">
+<td style="padding:12px 16px">
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="width:140px">
+      <a href="http://www.interac.ca/en" style="color:#fff">
+        <img src="${INTERAC_LOGO_URL}" alt="INTERAC" style="height:40px;width:100px;max-width:none;display:block;">
+      </a>
+    </td>
+    <td align="right" style="font-size:12px">
+      <a href="#" style="color:#eeeeee;margin-right:8px">View in browser</a>
+      <span style="color:#eeeeee">|</span>
+      <a href="http://www.interac.ca/en/etransferhelp" style="color:#eeeeee;margin-left:8px">Help</a>
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+<!-- BANK BADGE (shows recipient's bank) -->
+<tr>
+<td bgcolor="${INTERAC_ACCENT}" style="padding:6px 16px">
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="font-size:12px;color:#222222;font-weight:bold">${logoBlock}</td>
+    <td align="right" style="font-size:11px;color:#222222;opacity:.7">INTERAC e-Transfer&reg;</td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+${content}
+
+<!-- FOOTER -->
+<tr bgcolor="#ebebeb">
+<td style="padding:20px 24px">
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="font-size:11px;color:#666666;line-height:1.6">
+      This notification was sent on behalf of <strong>${bankName}</strong> via the INTERAC e-Transfer&reg; service.<br>
+      INTERAC e-Transfer&reg; is a registered trademark of Interac Corp.<br>
+      &copy; 2026 Interac Corp. All rights reserved.
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`
+}
+
+// Template – Interac e-Transfer Received
+export function generateInteracPaymentEmail(data: BankBrandedEmailData): string {
+  const {
+    recipientName,
+    amount = 0,
+    message,
+    transferId = `ITR-${Date.now().toString().slice(-6)}`,
+    depositLink = "https://etransfer.interac.ca",
+    bankName,
+    bankLogo,
+    institution = "QuantumYield eXchange",
+  } = data
+
+  const formattedAmount = amount.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const currentDate = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+
+  const messageBlock = message
+    ? `<tr><td style="padding:8px 24px 0">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${INTERAC_ACCENT};background:#fffef0">
+          <tr><td style="padding:12px 16px">
+            <div style="font-size:11px;color:#888;margin-bottom:4px">Message from sender</div>
+            <div style="font-size:14px;color:#222">${message}</div>
+          </td></tr>
+        </table>
+      </td></tr>`
+    : ""
+
+  const content = `
+<!-- GREETING -->
+<tr><td class="text-pad" style="padding:24px 24px 0">
+  <h1 style="font-size:20px;font-weight:600;color:${INTERAC_DARK};margin:0 0 12px">Hi ${recipientName},</h1>
+  <p style="font-size:15px;line-height:21px;color:${INTERAC_DARK};margin:0 0 10px">
+    <strong>${institution}</strong> at <a href="mailto:transactions@interac.ca" style="color:#555">transactions@interac.ca</a> sent you a monetary transfer for <strong>$${formattedAmount} (CAD)</strong>.
+  </p>
+</td></tr>
+
+<!-- AMOUNT BLOCK -->
+<tr><td style="padding:16px 24px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px">
+  <tr>
+    <td style="padding:16px 20px">
+      <div style="font-size:12px;color:#888;margin-bottom:4px">Amount Balance</div>
+      <div style="font-size:26px;font-weight:bold;color:${INTERAC_DARK}">${formattedAmount} <span style="font-size:16px;font-weight:normal">CAD</span></div>
+    </td>
+    <td align="right" style="padding:16px 20px">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">Expires</div>
+      <div style="font-size:13px;color:${INTERAC_DARK}">${expiryDate}</div>
+    </td>
+  </tr>
+  </table>
+</td></tr>
+
+${messageBlock}
+
+<!-- DETAILS TABLE -->
+<tr><td style="padding:8px 24px 0">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e0e0">
+    <tr style="background:#f5f5f5">
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;width:40%">Date</td>
+      <td style="padding:10px 14px;font-size:13px;color:#222">${currentDate}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;border-top:1px solid #e0e0e0">From</td>
+      <td style="padding:10px 14px;font-size:13px;color:#222;border-top:1px solid #e0e0e0">${institution}</td>
+    </tr>
+    <tr style="background:#f5f5f5">
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;border-top:1px solid #e0e0e0">Reference</td>
+      <td style="padding:10px 14px;font-size:13px;color:#222;border-top:1px solid #e0e0e0;font-family:monospace">${transferId}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;border-top:1px solid #e0e0e0">Amount</td>
+      <td style="padding:10px 14px;font-size:13px;font-weight:bold;color:${INTERAC_DARK};border-top:1px solid #e0e0e0">$${formattedAmount} CAD</td>
+    </tr>
+  </table>
+</td></tr>
+
+<!-- CTA BUTTON -->
+<tr><td align="center" style="padding:28px 24px">
+  <table cellpadding="0" cellspacing="0">
+  <tr>
+    <td bgcolor="${INTERAC_ACCENT}" style="border-radius:20px">
+      <a href="${depositLink}" style="display:inline-block;padding:14px 36px;color:#222222;font-size:16px;font-weight:bold;font-family:sans-serif">
+        Deposit Money
+      </a>
+    </td>
+  </tr>
+  </table>
+  <p style="font-size:11px;color:#888;margin-top:12px">Your money will be available within 30 minutes after deposit.</p>
+</td></tr>`
+
+  return interacEmailWrap(content, bankName, bankLogo)
+}
+
+// Template – Interac Pending Transfer
+export function generateInteracPendingEmail(data: BankBrandedEmailData): string {
+  const {
+    recipientName,
+    amount = 0,
+    message,
+    transferId = `ITR-${Date.now().toString().slice(-6)}`,
+    depositLink = "https://etransfer.interac.ca",
+    bankName,
+    bankLogo,
+    institution = "QuantumYield eXchange",
+  } = data
+
+  const formattedAmount = amount.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const currentDate = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+
+  const messageBlock = message
+    ? `<tr><td style="padding:8px 24px 0">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${INTERAC_ACCENT};background:#fffef0">
+          <tr><td style="padding:12px 16px">
+            <div style="font-size:11px;color:#888;margin-bottom:4px">Message from sender</div>
+            <div style="font-size:14px;color:#222">${message}</div>
+          </td></tr>
+        </table>
+      </td></tr>`
+    : ""
+
+  const content = `
+<!-- PENDING BANNER -->
+<tr><td style="padding:16px 24px 0">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px">
+  <tr>
+    <td style="padding:12px 16px">
+      <div style="font-size:13px;font-weight:bold;color:#e65100">Pending Transfer — Action Required</div>
+      <div style="font-size:12px;color:#bf360c;margin-top:4px">This transfer will expire on <strong>${expiryDate}</strong> if not deposited.</div>
+    </td>
+  </tr>
+  </table>
+</td></tr>
+
+<!-- GREETING -->
+<tr><td class="text-pad" style="padding:16px 24px 0">
+  <h1 style="font-size:20px;font-weight:600;color:${INTERAC_DARK};margin:0 0 12px">Hi ${recipientName},</h1>
+  <p style="font-size:15px;line-height:21px;color:${INTERAC_DARK};margin:0 0 10px">
+    <strong>${institution}</strong> has initiated an INTERAC e-Transfer of <strong>$${formattedAmount} (CAD)</strong> to you. The transfer is currently pending your deposit.
+  </p>
+</td></tr>
+
+<!-- AMOUNT BLOCK -->
+<tr><td style="padding:12px 24px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px">
+  <tr>
+    <td style="padding:16px 20px">
+      <div style="font-size:12px;color:#888;margin-bottom:4px">Pending Amount</div>
+      <div style="font-size:26px;font-weight:bold;color:${INTERAC_DARK}">${formattedAmount} <span style="font-size:16px;font-weight:normal">CAD</span></div>
+    </td>
+    <td align="right" style="padding:16px 20px">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">Status</div>
+      <div style="font-size:13px;font-weight:bold;color:#e65100">Awaiting Deposit</div>
+    </td>
+  </tr>
+  </table>
+</td></tr>
+
+${messageBlock}
+
+<!-- DETAILS TABLE -->
+<tr><td style="padding:8px 24px 0">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e0e0">
+    <tr style="background:#f5f5f5">
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;width:40%">Date Initiated</td>
+      <td style="padding:10px 14px;font-size:13px;color:#222">${currentDate}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;border-top:1px solid #e0e0e0">From</td>
+      <td style="padding:10px 14px;font-size:13px;color:#222;border-top:1px solid #e0e0e0">${institution}</td>
+    </tr>
+    <tr style="background:#f5f5f5">
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;border-top:1px solid #e0e0e0">Reference</td>
+      <td style="padding:10px 14px;font-size:13px;color:#222;border-top:1px solid #e0e0e0;font-family:monospace">${transferId}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-size:12px;color:#666;font-weight:bold;border-top:1px solid #e0e0e0">Expires</td>
+      <td style="padding:10px 14px;font-size:13px;color:#e65100;font-weight:bold;border-top:1px solid #e0e0e0">${expiryDate}</td>
+    </tr>
+  </table>
+</td></tr>
+
+<!-- CTA BUTTON -->
+<tr><td align="center" style="padding:28px 24px">
+  <table cellpadding="0" cellspacing="0">
+  <tr>
+    <td bgcolor="${INTERAC_ACCENT}" style="border-radius:20px">
+      <a href="${depositLink}" style="display:inline-block;padding:14px 36px;color:#222222;font-size:16px;font-weight:bold;font-family:sans-serif">
+        Deposit Now
+      </a>
+    </td>
+  </tr>
+  </table>
+  <p style="font-size:11px;color:#888;margin-top:12px">Do not share your security question answer with anyone.</p>
+</td></tr>`
+
+  return interacEmailWrap(content, bankName, bankLogo)
+}
 
 export function generateUpgradeWarningEmail(data: {
   recipientName: string
