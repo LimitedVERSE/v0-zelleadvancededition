@@ -440,6 +440,7 @@ interface ComposeDrawerProps {
 function ComposeDrawer({ region, template, bank, isInterac, onClose, onSent }: ComposeDrawerProps) {
   const [recipientName, setRecipientName] = useState("")
   const [recipientEmail, setRecipientEmail] = useState("")
+  const [amount, setAmount] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
 
@@ -469,7 +470,7 @@ function ComposeDrawer({ region, template, bank, isInterac, onClose, onSent }: C
             : (bank as Bank)?.logo ?? undefined,
           bankColor: color,
           template: template.id,
-          amount: "2,500,000.00",
+          amount: amount || "1,000.00",
         }),
       })
       if (!res.ok) {
@@ -558,13 +559,26 @@ function ComposeDrawer({ region, template, bank, isInterac, onClose, onSent }: C
           />
         </div>
 
-        {/* Amount locked */}
+        {/* Amount — editable */}
         <div>
-          <label className="block text-[10px] font-medium text-zinc-500 mb-1">Amount</label>
-          <div className="flex items-center gap-2 h-8 px-3 rounded-md border border-[#6D1ED4]/30 bg-[#6D1ED4]/8 cursor-not-allowed">
-            <DollarSign className="w-3.5 h-3.5 text-[#6D1ED4]" />
-            <span className="text-sm font-bold text-[#6D1ED4]">2,500,000.00</span>
-            <span className="ml-auto text-[9px] font-semibold text-[#6D1ED4]/50 uppercase tracking-wider">
+          <label className="block text-[10px] font-medium text-zinc-500 mb-1">
+            Amount ({region.code === "ca" ? "CAD" : "USD"}) *
+          </label>
+          <div className="relative flex items-center">
+            <DollarSign className="absolute left-2.5 w-3 h-3 text-zinc-400 pointer-events-none" />
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder="e.g. 1,500.00"
+              value={amount}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9.,]/g, "")
+                setAmount(raw)
+                if (status === "error") { setErrorMsg("") }
+              }}
+              className="w-full h-8 pl-7 pr-12 rounded-md bg-zinc-800 border border-zinc-700 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-[#6D1ED4]"
+            />
+            <span className="absolute right-2.5 text-[9px] font-semibold text-zinc-500 uppercase tracking-wider pointer-events-none">
               {region.code === "ca" ? "CAD" : "USD"}
             </span>
           </div>

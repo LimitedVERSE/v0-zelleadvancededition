@@ -76,6 +76,7 @@ const TEMPLATES: TemplateDef[] = [
 interface SendState {
   recipientEmail: string
   recipientName: string
+  amount: string
   message: string
   // Recipient bank wire details
   wireBank: string
@@ -90,7 +91,7 @@ interface SendState {
   errorMsg: string
 }
 
-const FIXED_AMOUNT = "2,500,000.00"
+
 
 // ─── Page ─────────────────────────────────────────────────────────────────
 
@@ -105,6 +106,7 @@ function EmailStudioContent() {
   const [sendState, setSendState] = useState<SendState>({
     recipientEmail: "",
     recipientName: "",
+    amount: "",
     message: "",
     wireBank: "",
     wireSwiftBic: "",
@@ -139,7 +141,7 @@ function EmailStudioContent() {
           bankLogo: selectedBank.logo,
           template: selectedTemplate,
           recipientName: sendState.recipientName || "Michael Dunagan",
-          amount: FIXED_AMOUNT,
+          amount: sendState.amount || "1,000.00",
           message: sendState.message,
         }),
       })
@@ -152,7 +154,7 @@ function EmailStudioContent() {
     } finally {
       setPreviewLoading(false)
     }
-  }, [selectedBank, selectedTemplate, sendState.recipientName, sendState.message])
+  }, [selectedBank, selectedTemplate, sendState.recipientName, sendState.amount, sendState.message])
 
   // Auto-preview when bank or template changes
   useEffect(() => {
@@ -185,7 +187,7 @@ function EmailStudioContent() {
           bankLogo: selectedBank.logo,
           bankColor: getBankColor(selectedBank.id),
           template: selectedTemplate,
-          amount: FIXED_AMOUNT,
+          amount: sendState.amount || "1,000.00",
           message: sendState.message || undefined,
           wireBank:               sendState.wireBank               || undefined,
           wireSwiftBic:           sendState.wireSwiftBic           || undefined,
@@ -349,11 +351,23 @@ function EmailStudioContent() {
 
               {currentTemplate.needsAmount && (
                 <div>
-                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">Amount (USD)</label>
-                  <div className="flex items-center gap-2 h-8 px-3 rounded-md border border-[#6D1ED4]/40 bg-[#6D1ED4]/10 select-none cursor-not-allowed">
-                    <DollarSign className="w-3.5 h-3.5 text-[#6D1ED4]" />
-                    <span className="text-sm font-bold text-[#6D1ED4]">2,500,000.00 USD</span>
-                    <span className="ml-auto text-[10px] font-semibold text-[#6D1ED4]/60 uppercase tracking-wider">INTERNATIONAL WIRE</span>
+                  <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+                    Amount (USD) <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <DollarSign className="absolute left-2.5 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="e.g. 1,500.00"
+                      value={sendState.amount}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/[^0-9.,]/g, "")
+                        updateSend({ amount: raw, status: "idle", errorMsg: "" })
+                      }}
+                      className="h-8 pl-8 pr-14 text-sm bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-[#6D1ED4]"
+                    />
+                    <span className="absolute right-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider pointer-events-none">USD</span>
                   </div>
                 </div>
               )}

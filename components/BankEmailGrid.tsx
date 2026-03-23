@@ -50,11 +50,18 @@ function defaultState(): BankEmailState {
   }
 }
 
-interface BankEmailGridProps {
-  searchTerm?: string
+interface TransferContext {
+  recipientEmail?: string
+  recipientName?: string
+  amount?: string
 }
 
-export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
+interface BankEmailGridProps {
+  searchTerm?: string
+  transferContext?: TransferContext
+}
+
+export default function BankEmailGrid({ searchTerm = "", transferContext }: BankEmailGridProps) {
   const [banks, setBanks] = useState<Bank[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
@@ -92,7 +99,17 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
   const toggle = (bankId: string) => {
     const current = bankStates[bankId]
     if (!current) return
-    update(bankId, { expanded: !current.expanded })
+    const opening = !current.expanded
+    if (opening && transferContext) {
+      update(bankId, {
+        expanded: true,
+        recipientEmail: current.recipientEmail || transferContext.recipientEmail || "",
+        recipientName: current.recipientName || transferContext.recipientName || "",
+        amount: current.amount !== "25.00" ? current.amount : (transferContext.amount || current.amount),
+      })
+    } else {
+      update(bankId, { expanded: !current.expanded })
+    }
   }
 
   const handleSend = async (bank: Bank) => {
@@ -172,6 +189,7 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {banks.map((bank) => {
         const state = bankStates[bank.id] ?? defaultState()
+        const meta = TEMPLATE_META[state.template]
         const isExpanded = state.expanded
 
         return (

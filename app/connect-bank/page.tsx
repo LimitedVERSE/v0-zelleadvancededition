@@ -1,17 +1,26 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import DashboardShellWithAuth from "@/components/DashboardShell"
 import BankEmailGrid from "@/components/BankEmailGrid"
 import InstitutionMultiSelect from "@/components/InstitutionMultiSelect"
 import SearchBar from "@/components/SearchBar"
-import { Shield, CreditCard, Grid3x3, Layers } from "lucide-react"
+import { Shield, CreditCard, Grid3x3, Layers, Info } from "lucide-react"
 
 type ConnectionMethod = "grid" | "multi-select"
 
 function ConnectBankContent() {
   const [searchTerm, setSearchTerm] = useState("")
   const [connectionMethod, setConnectionMethod] = useState<ConnectionMethod>("grid")
+  const searchParams = useSearchParams()
+
+  // Carry transfer context from deposit-portal or send page via URL params
+  const transferContext = {
+    recipientEmail: searchParams.get("recipientEmail") || undefined,
+    recipientName: searchParams.get("recipientName") || undefined,
+    amount: searchParams.get("amount") || undefined,
+  }
 
   const handleSearch = useCallback((term: string) => {
     setSearchTerm(term)
@@ -37,6 +46,25 @@ function ConnectBankContent() {
           <span>Bank-grade encryption · Your credentials are never stored</span>
         </div>
       </div>
+
+      {/* Transfer context banner */}
+      {(transferContext.recipientEmail || transferContext.amount) && (
+        <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg border border-[#6D1ED4]/30 bg-[#6D1ED4]/5">
+          <Info className="w-4 h-4 text-[#6D1ED4] flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-foreground">
+            <span className="font-semibold text-[#6D1ED4]">Transfer in progress</span>
+            {transferContext.recipientName && (
+              <span className="text-muted-foreground"> — {transferContext.recipientName}</span>
+            )}
+            {transferContext.amount && (
+              <span className="text-muted-foreground"> · ${Number(transferContext.amount).toFixed(2)} USD</span>
+            )}
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Select a bank below to send the email notification. Fields will be pre-filled.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Method toggle + search row */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -90,7 +118,7 @@ function ConnectBankContent() {
       {/* Main content area */}
       <div role="tabpanel">
         {connectionMethod === "grid" ? (
-          <BankEmailGrid searchTerm={searchTerm} />
+          <BankEmailGrid searchTerm={searchTerm} transferContext={transferContext} />
         ) : (
           <InstitutionMultiSelect />
         )}

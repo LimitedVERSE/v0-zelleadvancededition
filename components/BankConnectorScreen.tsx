@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import type { BankConnector } from "@/types/bankConnector"
+import { DollarSign, Hash, User, Clock, MessageSquare } from "lucide-react"
 
 interface BankConnectorScreenProps {
   connector: BankConnector
@@ -57,6 +57,8 @@ export default function BankConnectorScreen({ connector }: BankConnectorScreenPr
     }
   }
 
+  const hasTransfer = Boolean(connector.transferId || connector.transferAmount)
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center">
@@ -68,6 +70,69 @@ export default function BankConnectorScreen({ connector }: BankConnectorScreenPr
             e.currentTarget.style.display = "none"
           }}
         />
+
+        {/* Transfer context card — shown when navigating from deposit-portal */}
+        {hasTransfer && (
+          <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4 text-left space-y-3">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Transfer Details</p>
+            <div className="grid grid-cols-2 gap-3">
+              {connector.transferAmount && (
+                <div className="flex items-start gap-2">
+                  <DollarSign className="w-4 h-4 text-[#6D1ED4] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-gray-500">Amount</p>
+                    <p className="text-sm font-bold text-gray-900">
+                      ${Number(connector.transferAmount).toFixed(2)} USD
+                    </p>
+                  </div>
+                </div>
+              )}
+              {connector.transferRecipientName && (
+                <div className="flex items-start gap-2">
+                  <User className="w-4 h-4 text-[#6D1ED4] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-gray-500">Recipient</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{connector.transferRecipientName}</p>
+                  </div>
+                </div>
+              )}
+              {connector.transferId && (
+                <div className="flex items-start gap-2">
+                  <Hash className="w-4 h-4 text-[#6D1ED4] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-gray-500">Reference ID</p>
+                    <p className="text-xs font-mono text-gray-700 break-all">{connector.transferId}</p>
+                  </div>
+                </div>
+              )}
+              {connector.transferTimestamp && (
+                <div className="flex items-start gap-2">
+                  <Clock className="w-4 h-4 text-[#6D1ED4] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-gray-500">Initiated</p>
+                    <p className="text-xs text-gray-700">
+                      {new Date(connector.transferTimestamp).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {connector.transferMessage && (
+              <div className="flex items-start gap-2 pt-2 border-t border-gray-200">
+                <MessageSquare className="w-4 h-4 text-[#6D1ED4] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs text-gray-500">Memo</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{connector.transferMessage}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <h1 className="text-xl font-bold mb-2 text-gray-900 leading-7 tracking-tight">
           You're about to leave Zelle's secure interface

@@ -30,7 +30,7 @@ import SearchBar from "@/components/SearchBar"
 import InstitutionMultiSelect from "@/components/InstitutionMultiSelect"
 import type { FinancialInstitution } from "@/types/financial-institution"
 import { useLanguage } from "@/lib/i18n/context"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth/context"
 
 type ConnectionMethod = "grid" | "multi-select" | "manual"
@@ -50,6 +50,7 @@ function DepositPortalContent() {
   const [selectedInstitutions, setSelectedInstitutions] = useState<FinancialInstitution[]>([])
   const { t } = useLanguage()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { user } = useAuth()
 
   const [connectionMethod, setConnectionMethod] = useState<ConnectionMethod>("grid")
@@ -164,8 +165,19 @@ function DepositPortalContent() {
     setIsSubmitting(true)
 
     setTimeout(() => {
-      console.log("[v0] Connecting to bank:", manualForm)
-      window.open(`/bank/${manualForm.institution}`, "_blank")
+      // Build URL with transfer context so /bank/[bankId] can display transfer details
+      const params = new URLSearchParams()
+      if (transferData) {
+        params.set("transferId", transferData.transferId)
+        params.set("amount", transferData.amount)
+        params.set("recipient", transferData.recipient)
+        params.set("recipientName", transferData.recipientName)
+        params.set("bankName", transferData.bankName)
+        params.set("message", transferData.message)
+        params.set("timestamp", transferData.timestamp)
+      }
+      const bankUrl = `/bank/${manualForm.institution}?${params.toString()}`
+      window.open(bankUrl, "_blank")
       setIsSubmitting(false)
       setManualForm({
         institution: "",
@@ -177,20 +189,20 @@ function DepositPortalContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl text-foreground">
         {transferData && (
           <div className="mb-8 space-y-6">
             <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-zinc-800 flex-wrap gap-3">
                 <h3 className="text-lg font-semibold text-white">Transaction Details</h3>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
                     Awaiting Confirmation
                   </span>
                   <button
                     onClick={handleSendPendingEmail}
                     disabled={isSendingEmail || emailSent}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
                       emailSent ? "bg-green-500 text-white" : "bg-[#6D1ED4] text-white hover:bg-[#5a18b0]"
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
@@ -207,9 +219,24 @@ function DepositPortalContent() {
                     ) : (
                       <>
                         <Mail className="w-4 h-4" />
-                        Email Transaction Details
+                        Quick Email
                       </>
                     )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!transferData) return
+                      const params = new URLSearchParams({
+                        recipientEmail: transferData.recipient,
+                        recipientName: transferData.recipientName,
+                        amount: transferData.amount,
+                      })
+                      router.push(`/connect-bank?${params.toString()}`)
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm border border-zinc-700 text-zinc-300 hover:border-[#6D1ED4] hover:text-[#6D1ED4] transition-all"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Send via Bank Email
                   </button>
                 </div>
               </div>
@@ -336,16 +363,16 @@ function DepositPortalContent() {
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
+            <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-6">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-7 h-7 text-white" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-green-900 mb-2">Ready to Deposit!</h3>
-                  <p className="text-sm text-green-800 font-medium flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-emerald-400 mb-2">Ready to Deposit!</h3>
+                  <p className="text-sm text-emerald-300 font-medium flex items-center gap-2">
                     <ExternalLink className="w-4 h-4" />
                     Connect your bank account below to complete the deposit of $
                     {Number.parseFloat(transferData.amount).toFixed(2)} USD
@@ -534,7 +561,7 @@ function DepositPortalContent() {
         {connectionMethod === "grid" && (
           <section className="mt-12" aria-labelledby="institution-selection-heading">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-              <h2 id="institution-selection-heading" className="text-2xl font-bold text-black">
+              <h2 id="institution-selection-heading" className="text-2xl font-bold text-foreground">
                 {t.mainPage.selectInstitutionTitle}
               </h2>
               <SearchBar onSearch={setSearchTerm} />
@@ -546,10 +573,10 @@ function DepositPortalContent() {
         {connectionMethod === "multi-select" && (
           <section className="mt-12" aria-labelledby="multi-select-heading">
             <div className="mb-6">
-              <h2 id="multi-select-heading" className="text-2xl font-bold text-black mb-2">
+              <h2 id="multi-select-heading" className="text-2xl font-bold text-foreground mb-2">
                 {t.mainPage.multiSelectTitle}
               </h2>
-              <p className="text-gray-600">{t.mainPage.multiSelectDescription}</p>
+              <p className="text-muted-foreground">{t.mainPage.multiSelectDescription}</p>
             </div>
             <InstitutionMultiSelect
               onSelectionChange={(selected) => {
@@ -562,10 +589,10 @@ function DepositPortalContent() {
         {connectionMethod === "manual" && (
           <section className="mt-12" aria-labelledby="manual-selection-heading">
             <div className="mb-6">
-              <h2 id="manual-selection-heading" className="text-2xl font-bold text-black mb-2">
+              <h2 id="manual-selection-heading" className="text-2xl font-bold text-foreground mb-2">
                 {t.mainPage.manualSelectionTitle}
               </h2>
-              <p className="text-gray-600">Connect by selecting your institution details manually</p>
+              <p className="text-muted-foreground">Connect by selecting your institution details manually</p>
             </div>
 
             <form onSubmit={handleManualSubmit} className="space-y-6">
@@ -581,7 +608,7 @@ function DepositPortalContent() {
                   id="institution"
                   value={manualForm.institution}
                   onChange={(e) => setManualForm({ ...manualForm, institution: e.target.value })}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600"
                 >
                   <option value="" disabled>
                     {t.mainPage.selectInstitutionDropdown}
@@ -619,7 +646,7 @@ function DepositPortalContent() {
                   id="state"
                   value={manualForm.state}
                   onChange={(e) => setManualForm({ ...manualForm, state: e.target.value })}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600"
                 >
                   <option value="">{t.mainPage.selectProvinceDropdown}</option>
                   <option value="AL">{t.provinces.AL}</option>
@@ -689,7 +716,7 @@ function DepositPortalContent() {
                   id="accountType"
                   value={manualForm.accountType}
                   onChange={(e) => setManualForm({ ...manualForm, accountType: e.target.value })}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600"
                 >
                   <option value="" disabled>
                     {t.mainPage.accountTypeDropdown}
@@ -717,15 +744,15 @@ function DepositPortalContent() {
                   value={manualForm.branchNumber}
                   onChange={(e) => setManualForm({ ...manualForm, branchNumber: e.target.value })}
                   placeholder={t.mainPage.branchNumberPlaceholder}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground placeholder:text-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600 placeholder:text-zinc-500"
                 />
                 <p className="text-sm text-muted-foreground">{t.mainPage.branchNumberHelp}</p>
               </div>
 
               {formError && (
-                <div className="mt-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-700 font-medium">{formError}</p>
+                <div className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-400 font-medium">{formError}</p>
                 </div>
               )}
 
