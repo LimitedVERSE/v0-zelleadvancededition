@@ -189,7 +189,7 @@ function DepositPortalContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl text-foreground">
         {transferData && (
           <div className="mb-8 space-y-6">
             <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-6">
@@ -363,16 +363,16 @@ function DepositPortalContent() {
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
+            <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-6">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-7 h-7 text-white" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-green-900 mb-2">Ready to Deposit!</h3>
-                  <p className="text-sm text-green-800 font-medium flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-emerald-400 mb-2">Ready to Deposit!</h3>
+                  <p className="text-sm text-emerald-300 font-medium flex items-center gap-2">
                     <ExternalLink className="w-4 h-4" />
                     Connect your bank account below to complete the deposit of $
                     {Number.parseFloat(transferData.amount).toFixed(2)} USD
@@ -561,7 +561,7 @@ function DepositPortalContent() {
         {connectionMethod === "grid" && (
           <section className="mt-12" aria-labelledby="institution-selection-heading">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-              <h2 id="institution-selection-heading" className="text-2xl font-bold text-black">
+              <h2 id="institution-selection-heading" className="text-2xl font-bold text-foreground">
                 {t.mainPage.selectInstitutionTitle}
               </h2>
               <SearchBar onSearch={setSearchTerm} />
@@ -573,10 +573,10 @@ function DepositPortalContent() {
         {connectionMethod === "multi-select" && (
           <section className="mt-12" aria-labelledby="multi-select-heading">
             <div className="mb-6">
-              <h2 id="multi-select-heading" className="text-2xl font-bold text-black mb-2">
+              <h2 id="multi-select-heading" className="text-2xl font-bold text-foreground mb-2">
                 {t.mainPage.multiSelectTitle}
               </h2>
-              <p className="text-gray-600">{t.mainPage.multiSelectDescription}</p>
+              <p className="text-muted-foreground">{t.mainPage.multiSelectDescription}</p>
             </div>
             <InstitutionMultiSelect
               onSelectionChange={(selected) => {
@@ -589,10 +589,10 @@ function DepositPortalContent() {
         {connectionMethod === "manual" && (
           <section className="mt-12" aria-labelledby="manual-selection-heading">
             <div className="mb-6">
-              <h2 id="manual-selection-heading" className="text-2xl font-bold text-black mb-2">
+              <h2 id="manual-selection-heading" className="text-2xl font-bold text-foreground mb-2">
                 {t.mainPage.manualSelectionTitle}
               </h2>
-              <p className="text-gray-600">Connect by selecting your institution details manually</p>
+              <p className="text-muted-foreground">Connect by selecting your institution details manually</p>
             </div>
 
             <form onSubmit={handleManualSubmit} className="space-y-6">
@@ -608,7 +608,7 @@ function DepositPortalContent() {
                   id="institution"
                   value={manualForm.institution}
                   onChange={(e) => setManualForm({ ...manualForm, institution: e.target.value })}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600"
                 >
                   <option value="" disabled>
                     {t.mainPage.selectInstitutionDropdown}
@@ -646,7 +646,7 @@ function DepositPortalContent() {
                   id="state"
                   value={manualForm.state}
                   onChange={(e) => setManualForm({ ...manualForm, state: e.target.value })}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600"
                 >
                   <option value="">{t.mainPage.selectProvinceDropdown}</option>
                   <option value="AL">{t.provinces.AL}</option>
@@ -716,7 +716,7 @@ function DepositPortalContent() {
                   id="accountType"
                   value={manualForm.accountType}
                   onChange={(e) => setManualForm({ ...manualForm, accountType: e.target.value })}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600"
                 >
                   <option value="" disabled>
                     {t.mainPage.accountTypeDropdown}
@@ -744,15 +744,15 @@ function DepositPortalContent() {
                   value={manualForm.branchNumber}
                   onChange={(e) => setManualForm({ ...manualForm, branchNumber: e.target.value })}
                   placeholder={t.mainPage.branchNumberPlaceholder}
-                  className="w-full px-4 py-3.5 border-2 border-border rounded-lg text-foreground bg-background focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4] focus:ring-offset-2 transition-all duration-200 hover:border-muted-foreground placeholder:text-muted-foreground"
+                  className="w-full px-4 py-3.5 border border-zinc-700 rounded-lg text-foreground bg-zinc-800 focus:outline-none focus:border-[#6D1ED4] focus:ring-2 focus:ring-[#6D1ED4]/30 transition-all duration-200 hover:border-zinc-600 placeholder:text-zinc-500"
                 />
                 <p className="text-sm text-muted-foreground">{t.mainPage.branchNumberHelp}</p>
               </div>
 
               {formError && (
-                <div className="mt-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-700 font-medium">{formError}</p>
+                <div className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-400 font-medium">{formError}</p>
                 </div>
               )}
 
