@@ -172,6 +172,7 @@ export default function BankEmailGrid({ searchTerm = "" }: BankEmailGridProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {banks.map((bank) => {
         const state = bankStates[bank.id] ?? defaultState()
+        const meta = TEMPLATE_META[state.template]
         const isExpanded = state.expanded
 
         return (
