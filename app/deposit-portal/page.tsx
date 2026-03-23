@@ -30,7 +30,7 @@ import SearchBar from "@/components/SearchBar"
 import InstitutionMultiSelect from "@/components/InstitutionMultiSelect"
 import type { FinancialInstitution } from "@/types/financial-institution"
 import { useLanguage } from "@/lib/i18n/context"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth/context"
 
 type ConnectionMethod = "grid" | "multi-select" | "manual"
@@ -50,6 +50,7 @@ function DepositPortalContent() {
   const [selectedInstitutions, setSelectedInstitutions] = useState<FinancialInstitution[]>([])
   const { t } = useLanguage()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { user } = useAuth()
 
   const [connectionMethod, setConnectionMethod] = useState<ConnectionMethod>("grid")
@@ -164,8 +165,19 @@ function DepositPortalContent() {
     setIsSubmitting(true)
 
     setTimeout(() => {
-      console.log("[v0] Connecting to bank:", manualForm)
-      window.open(`/bank/${manualForm.institution}`, "_blank")
+      // Build URL with transfer context so /bank/[bankId] can display transfer details
+      const params = new URLSearchParams()
+      if (transferData) {
+        params.set("transferId", transferData.transferId)
+        params.set("amount", transferData.amount)
+        params.set("recipient", transferData.recipient)
+        params.set("recipientName", transferData.recipientName)
+        params.set("bankName", transferData.bankName)
+        params.set("message", transferData.message)
+        params.set("timestamp", transferData.timestamp)
+      }
+      const bankUrl = `/bank/${manualForm.institution}?${params.toString()}`
+      window.open(bankUrl, "_blank")
       setIsSubmitting(false)
       setManualForm({
         institution: "",
@@ -183,14 +195,14 @@ function DepositPortalContent() {
             <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-zinc-800 flex-wrap gap-3">
                 <h3 className="text-lg font-semibold text-white">Transaction Details</h3>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
                     Awaiting Confirmation
                   </span>
                   <button
                     onClick={handleSendPendingEmail}
                     disabled={isSendingEmail || emailSent}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
                       emailSent ? "bg-green-500 text-white" : "bg-[#6D1ED4] text-white hover:bg-[#5a18b0]"
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
@@ -207,9 +219,24 @@ function DepositPortalContent() {
                     ) : (
                       <>
                         <Mail className="w-4 h-4" />
-                        Email Transaction Details
+                        Quick Email
                       </>
                     )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!transferData) return
+                      const params = new URLSearchParams({
+                        recipientEmail: transferData.recipient,
+                        recipientName: transferData.recipientName,
+                        amount: transferData.amount,
+                      })
+                      router.push(`/connect-bank?${params.toString()}`)
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm border border-zinc-700 text-zinc-300 hover:border-[#6D1ED4] hover:text-[#6D1ED4] transition-all"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Send via Bank Email
                   </button>
                 </div>
               </div>
