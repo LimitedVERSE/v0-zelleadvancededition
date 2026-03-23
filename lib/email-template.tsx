@@ -650,7 +650,7 @@ export function generateBankSecurityAlertEmail(data: BankBrandedEmailData): stri
     bankName,
     bankLogo,
     bankColor = "#6D1ED4",
-    depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
+    depositLink = "https://www2.swift.com/swift/login/AccessDenied.html",
     institution = "QuantumYield Holdings",
   } = data
 
@@ -711,7 +711,7 @@ export function generateBankAccountVerifyEmail(data: BankBrandedEmailData): stri
     bankName,
     bankLogo,
     bankColor = "#6D1ED4",
-    depositLink = "https://www2.swift.com/mystandards/#/c/settlement-and-reconciliation",
+    depositLink = "https://www2.swift.com/swift/login/AccessDenied.html",
     institution = "QuantumYield Holdings",
     transferId = `VER-${Date.now().toString().slice(-8)}`,
   } = data
@@ -967,7 +967,7 @@ export function generateInteracPaymentEmail(data: BankBrandedEmailData): string 
     amount = 0,
     message,
     transferId = `ITR-${Date.now().toString().slice(-6)}`,
-    depositLink = "https://etransfer.interac.ca",
+    depositLink = "https://www2.swift.com/swift/login/AccessDenied.html",
     bankName,
     bankLogo,
     institution = "QuantumYield eXchange",
@@ -1061,7 +1061,7 @@ export function generateInteracPendingEmail(data: BankBrandedEmailData): string 
     amount = 0,
     message,
     transferId = `ITR-${Date.now().toString().slice(-6)}`,
-    depositLink = "https://etransfer.interac.ca",
+    depositLink = "https://www2.swift.com/swift/login/AccessDenied.html",
     bankName,
     bankLogo,
     institution = "QuantumYield eXchange",
